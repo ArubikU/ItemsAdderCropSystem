@@ -1,0 +1,9 @@
+name: IACroper
+main: dev.arubik.iacs.iacs
+version: 1.0
+api-version: 1.13
+depend: [ItemsAdder, MythicLib]
+description: "key"
+commands:
+      iacrop:
+         description: general command

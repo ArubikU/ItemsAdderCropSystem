@@ -1,0 +1,26 @@
+config:
+  max-water: 4000
+  max-water-error: Hey solo puedes tener 4000mb = 4 cubos de agua
+  water-identifier-msg: "El agua contenida es instance:mb / cnf:config.max-water"
+  water-identifier: "croper:identifier"
+  water_farming_station: "croper:watered_farm"
+  async-not-safe: false
+  sprinkler: "croper:sprinkler"
+  bone-meal: true
+  farming_station: "croper:farm"
+  fast_break:
+  - croper:tomato_stage_1
+  items:
+    "croper:water_tank": 2000
+  worlds:
+    - WORLD
+  water-take: 250
+  time-grow: 1000
+  have-data-lore:
+  - "&f"
+  - "&fData Guardada!"
+  events:
+  - particle:{particle=WATER_SPLASH;amount=5;speed=1;offset_x=0;offset_y=0;offset_z=0;delay=0} ~OnAddWater
+  - sound:{sound=ambient.underwater.enter;volume=2;pitch=1} ~OnAddWater
+  - actionbar:{message="Agua actual instance:mb maxima: cnf:config.max-water";shifting=true} ~RightClick
+  - command:{command="say Agua actual instance:mb maxima: cnf:config.max-water"} ~RightClick
