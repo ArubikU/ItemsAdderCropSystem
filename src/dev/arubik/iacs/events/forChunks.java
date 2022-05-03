@@ -7,6 +7,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import dev.arubik.iacs.iacs;
 import dev.arubik.iacs.Crops.CropInstance;
@@ -14,10 +15,12 @@ import dev.arubik.iacs.managers.CropManager;
 import dev.lone.itemsadder.api.CustomBlock;
 
 
-public class forChunks {
-	
-	public forChunks() {	
+public class forChunks extends BukkitRunnable {
 
+    @Override
+    public void run() {
+
+    	iacs.startTimer();
 
 		File f = new File(iacs.getPlugin().getDataFolder(), "config.yml");
 		if (!f.exists()) {
@@ -35,6 +38,8 @@ public class forChunks {
 				 Location seed = substracted;
 
 				seed.setY(substracted.getBlockY() + 1);
+				
+				
 					if(CropManager.getInstance(substracted)!=null) {
 						
 						

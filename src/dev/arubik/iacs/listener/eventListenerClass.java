@@ -24,7 +24,7 @@ public class eventListenerClass implements Listener{
 		switch(e.getOp()) {
 			case ADDITION:{
 				tag("~OnAddWater").forEach(event ->{
-					SkillEvent skill = new SkillEvent(e.getBlock().getLocation(), LineConfig.of(event), e.getPlayer());
+					SkillEvent skill = new SkillEvent(e.getB().getLocation(), LineConfig.of(event), e.getPlayer());
 							if(e.isCancelled() != false) {
 								if(skill.getLc().getInteger("AddWater", 0) != 0) {
 									e.setAmount(e.getAmount() + skill.getLc().getInteger("AddWater", 0));
@@ -42,7 +42,7 @@ public class eventListenerClass implements Listener{
 			}
 			case REST:{
 				tag("~OnTakeWater").forEach(event ->{
-					SkillEvent skill = new SkillEvent(e.getBlock().getLocation(), LineConfig.of(event), e.getPlayer());
+					SkillEvent skill = new SkillEvent(e.getB().getLocation(), LineConfig.of(event), e.getPlayer());
 							if(e.isCancelled() != false) {
 								if(skill.getLc().getInteger("AddWater", 0) != 0) {
 									e.setAmount(e.getAmount() + skill.getLc().getInteger("AddWater", 0));
@@ -59,7 +59,7 @@ public class eventListenerClass implements Listener{
 			}
 			case REST_SPRINKLER:{
 				tag("~OnSprinklerFill").forEach(event ->{
-					SkillEvent skill = new SkillEvent(e.getBlock().getLocation(), LineConfig.of(event), e.getPlayer());
+					SkillEvent skill = new SkillEvent(e.getB().getLocation(), LineConfig.of(event), e.getPlayer());
 					
 							if(e.isCancelled() != false) {
 								if(skill.getLc().getInteger("AddWater", 0) != 0) {

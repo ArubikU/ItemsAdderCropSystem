@@ -8,12 +8,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
+import dev.arubik.iacs.iacs;
 import dev.arubik.iacs.Crops.CropInstance;
 
-public class ModifyMB extends org.bukkit.event.block.BlockEvent implements Cancellable{
+public class ModifyMB extends org.bukkit.event.Event implements Cancellable{
 
 	
 	Operation op;
+	Block b;
+	public Block getB() {
+		return b;
+	}
+
+	public void setB(Block b) {
+		this.b = b;
+	}
+
 	int amount;
 	CropInstance ci;
 	Player player;
@@ -39,13 +49,15 @@ public class ModifyMB extends org.bukkit.event.block.BlockEvent implements Cance
 	}
 
 	public ModifyMB(Block b, @Nullable Player who, Operation op, int amount, CropInstance ci) {
-		super(b);
+		super (true);
+		this.b = b;
 		this.player = who;
 		this.op = op;
 		this.amount = amount;
 		this.ci = ci;
-
-		Bukkit.getServer().getPluginManager().callEvent(this);
+		
+		 Bukkit.getPluginManager().callEvent(this);
+		//Bukkit.getScheduler().runTask(iacs.getPlugin(), () -> Bukkit.getPluginManager().callEvent(this));
 	}
 
 	@Override

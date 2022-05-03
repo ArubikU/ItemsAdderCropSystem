@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
+import dev.arubik.iacs.iacs;
 import dev.arubik.iacs.Crops.CropInstance;
 import dev.arubik.iacs.managers.CropManager;
 import dev.lone.itemsadder.api.CustomBlock;
@@ -20,12 +21,13 @@ public class SkillEvent extends org.bukkit.event.Event implements Cancellable{
 	public Player p;
 	
 	public SkillEvent(Location loc, LineConfig lc,@Nullable Player p) {
+		super(true);
 		this.loc = loc;
 		this.lc = lc;
 		this.p = p;
 		
 
-		Bukkit.getServer().getPluginManager().callEvent(this);
+		Bukkit.getScheduler().runTaskAsynchronously(iacs.getPlugin(), () -> Bukkit.getServer().getPluginManager().callEvent(this));
 		
 
 		if(p != null) {

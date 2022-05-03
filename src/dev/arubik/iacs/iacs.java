@@ -8,9 +8,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Server;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -20,14 +23,18 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import dev.arubik.iacs.Crops.CropInstance;
 import dev.arubik.iacs.Crops.CropTimer;
 import dev.arubik.iacs.cmds.TabExecutor;
+import dev.arubik.iacs.events.ModifyMB;
+import dev.arubik.iacs.events.ModifyMB.Operation;
 import dev.arubik.iacs.listener.RightClickListener;
 import dev.arubik.iacs.listener.eventListenerClass;
 import dev.arubik.iacs.listener.onBreakListener;
 import dev.arubik.iacs.managers.AdvancedLicense;
 import dev.arubik.iacs.managers.CropManager;
 import dev.arubik.iacs.skills.Skills;
+import dev.lone.itemsadder.api.CustomBlock;
 import io.lumine.mythic.utils.adventure.audience.Audience;
 import io.lumine.mythic.utils.adventure.platform.bukkit.BukkitAudiences;
 import io.lumine.mythic.utils.adventure.text.Component;
@@ -47,6 +54,10 @@ public class iacs extends JavaPlugin{
 	public static iacs plugin;
 	
 	public static CropManager cm;
+	
+	public static ModifyMB castModifyMB(Block b, @Nullable Player who, Operation op, int amount, CropInstance ci) {
+		return new ModifyMB(b, who, op, amount, ci);
+	}
 	
 	public PluginDescriptionFile getPdffile() {
 		return pdffile;
@@ -89,8 +100,13 @@ public class iacs extends JavaPlugin{
 		iacs.plugin = plugin;
 	}
 
-	public static void log(String message) {
-		iacs.getPlugin().getLogger().log(Level.WARNING, message);
+	
+	
+	public static void log(Object message) {
+
+
+		iacs.MiniMessage(" <red>ERROR</red> <gradient:red:white>[" + message.toString() + "]</gradient>", Bukkit.getConsoleSender(), 0);
+		
 	}
 	
 
@@ -107,6 +123,12 @@ public class iacs extends JavaPlugin{
 //				System.out.println(event + " cancelled by " + plugin);
 //			}
 //		});
+		
+
+		if(iacs.getCfg("config.async-not-safe", false).toString().equalsIgnoreCase("TRUE")) {
+			iacs.MiniMessage("<rainbow>[IACROPER] AsynMode Enabled</rainbow>", Bukkit.getConsoleSender(), 0);
+		}
+		
 		
 		plugin.getCommand("iacrop").setExecutor(new TabExecutor());
 		plugin.getCommand("iacrop").setTabCompleter(new TabExecutor());
@@ -144,6 +166,48 @@ public class iacs extends JavaPlugin{
 		Bukkit.getPluginManager().registerEvents(new eventListenerClass(), this);
 		startTimer();
 	}
+	
+	public static void sendBlock(CustomBlock cb, Location loc, int distance) {
+
+		
+		if(cb.getNamespacedID().equalsIgnoreCase((String) iacs.getCfg("config.farming_station", ""))
+	|| cb.getNamespacedID().equalsIgnoreCase((String) iacs.getCfg("config.water_farming_station", ""))) {
+
+			Bukkit.getScheduler().runTask(iacs.getPlugin(), () ->{
+			cb.place(loc);
+			});
+			
+		}else {
+		
+		Bukkit.getScheduler().runTask(iacs.getPlugin(), () ->{
+			loc.getWorld().setBlockData(loc, cb.getBaseBlockData());
+			loc.getWorld().getBlockAt(loc).setBlockData(cb.getBaseBlockData());
+			dev.lone.itemsadder.api.CustomBlock$Advanced.placeInCustomRegion(cb, loc);
+			Bukkit.getOnlinePlayers().forEach(player -> {
+				Location newl = player.getLocation().clone();
+				newl.setY(loc.getY());
+				if(newl.distance(loc) < distance) {
+					player.sendBlockChange(loc, cb.getBaseBlockData());
+				}
+			});
+		});
+		
+
+		Bukkit.getScheduler().runTaskLater(iacs.getPlugin(), () ->{
+			Bukkit.getOnlinePlayers().forEach(player -> {
+				Location newl = player.getLocation().clone();
+				newl.setY(loc.getY());
+				if(newl.distance(loc) < distance) {
+					player.sendBlockChange(loc, cb.getBaseBlockData());
+				}
+			});
+		}, 2);
+		
+		
+
+		}
+	}
+	
 	
 	public static String parsePlaceholder(Player p, Location loc, String message) {
 
@@ -326,7 +390,7 @@ public class iacs extends JavaPlugin{
 	
 	
 	public static Object getCfg(String rute, Object temp) {
-		File f = new File(iacs.getPlugin().getDataFolder(), "dont-touch.yml");
+		File f = new File(iacs.getPlugin().getDataFolder(), "config.yml");
 		if (!f.exists()) {
 			f.getParentFile().mkdirs();
 		}

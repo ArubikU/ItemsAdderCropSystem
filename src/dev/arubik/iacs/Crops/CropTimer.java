@@ -2,6 +2,7 @@ package dev.arubik.iacs.Crops;
 
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.scheduler.BukkitTask;
 
 import dev.arubik.iacs.iacs;
 import dev.arubik.iacs.events.forChunks;
@@ -16,28 +17,9 @@ public class CropTimer {
 	   
 	   public CropTimer(int originalTime) {
 	        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-	        taskID = scheduler.scheduleSyncDelayedTask(iacs.getPlugin(), new Runnable() {
-	            @Override
-	            public void run() {
-	            	iacs.startTimer();
-	            	try {
-	            		
-	            		if(iacs.getCfg("config.async-not-safe", false).toString().equalsIgnoreCase("TRUE")) {
-	            			scheduler.runTaskAsynchronously(iacs.getPlugin(), new Runnable() {
-								@Override
-								public void run() {
-				            		new forChunks();
-								}
-	            				
-	            			});
-	            		}
-	            		else {
-		            		new forChunks();	
-	            		}
-	            	}catch (Error e) {}
-	            	
-	            }
-	        }, Long.valueOf(originalTime*20 + ""));
+	        forChunks fs =  new forChunks();
+	        BukkitTask ts = fs.runTaskLaterAsynchronously(iacs.getPlugin(), originalTime*20);
+	        taskID = ts.getTaskId();
 	        
 
 	    }

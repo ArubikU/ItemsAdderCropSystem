@@ -150,6 +150,7 @@ public class CropManager {
 	}
 	
 	public static List<Location> getInstances(World world) {
+		
 		File f = new File(iacs.getPlugin().getDataFolder(), "dont-touch.yml");
 		if (!f.exists()) {
 			f.getParentFile().mkdirs();
@@ -158,19 +159,24 @@ public class CropManager {
 		FileConfiguration conf = (FileConfiguration) s;
 		
 		if(!iacs.getPlugin().getConfig().getStringList("config.worlds").contains(world.getName())) {
-			iacs.MiniMessage("[IACroper] <gray>El mundo de la instancias no esta habilitado en config", Bukkit.getConsoleSender(), 0);
+			iacs.MiniMessage("<rainbow>[IACroper]</rainbow> <gray>El mundo de la instancias no esta habilitado en config", Bukkit.getConsoleSender(), 0);
 		}
 		
 		List<Location> locs = new ArrayList<Location>();
 		
 		if(conf.getConfigurationSection("instances."+world.getName()) != null) {
-		
-		conf.getConfigurationSection("instances."+world.getName()).getKeys(false).forEach(key ->{
-			String[] splited = key.split("~");
-			locs.add(new Location(world, Integer.valueOf(splited[0]), Integer.valueOf(splited[1]), Integer.valueOf(splited[2]) ) );
-		});
+
+			conf.getConfigurationSection("instances."+world.getName()).getKeys(false).forEach(key ->{
+				try {
+				String[] splited = key.split("~");
+				locs.add(new Location(world, Integer.valueOf(splited[0]), Integer.valueOf(splited[1]), Integer.valueOf(splited[2]) ) );
+				}catch(Exception e) {
+					iacs.log(e);
+				}
+			});
+			
+			
 		}
-		
 		return locs;
 	}
 	
@@ -184,23 +190,22 @@ public class CropManager {
 	
 	@SuppressWarnings("unchecked")
 	public static void removeInstance(Location loc) {
-		instances.remove(loc);
-		instances.remove(loc.clone().subtract(0, 1, 0));
-		
-		if(CustomBlock.byAlreadyPlaced(loc.getBlock()) != null) {
-			if(CustomBlock.byAlreadyPlaced(loc.getBlock()).getNamespacedID().contains("_stage_")) {
-				CustomBlock.byAlreadyPlaced(loc.getBlock()).getLoot().forEach(stack ->{
-					loc.getBlock().getLocation().getWorld().dropItem(loc.getBlock().getLocation(),(ItemStack) stack);
-				});
-				CustomBlock.remove(loc.getBlock().getLocation());
-			}
-		}else if(CustomBlock.byAlreadyPlaced(loc.clone().add(0,1,0).getBlock()) != null) {
+		try {
+			instances.remove(loc);
+			instances.remove(loc.clone().subtract(0, 1, 0));}
+		catch (Exception e) {
+			
+		}
+
+		if(CustomBlock.byAlreadyPlaced(loc.clone().add(0,1,0).getBlock()) != null) {
 			if(CustomBlock.byAlreadyPlaced(loc.clone().add(0,1,0).getBlock()).getNamespacedID().contains("_stage_")) {
-				CustomBlock.byAlreadyPlaced(loc.clone().add(0,1,0).getBlock()).getLoot().forEach(stack ->{
+				CustomBlock.byAlreadyPlaced(loc.clone().add(0,1,0).getBlock()).getLoot(false).forEach(stack ->{
 					loc.clone().add(0,1,0).getBlock().getLocation().getWorld().dropItem(loc.clone().add(0,1,0).getBlock().getLocation(),(ItemStack) stack);
-				});
+					});
 				CustomBlock.remove(loc.clone().add(0,1,0).getBlock().getLocation());
 			}
+			
+
 		}
 		
 		File f = new File(iacs.getPlugin().getDataFolder(), "dont-touch.yml");
@@ -223,6 +228,29 @@ public class CropManager {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void removeInstanceW(Location loc) {
+			instances.remove(loc);
+			instances.remove(loc.clone().subtract(0, 1, 0));
+		File f = new File(iacs.getPlugin().getDataFolder(), "dont-touch.yml");
+		if (!f.exists()) {
+			f.getParentFile().mkdirs();
+		}
+		YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
+		FileConfiguration conf = (FileConfiguration) s;
+		conf.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+ ".mb", null);
+		conf.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".seed", null);
+		conf.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ(), null);
+		conf.set("instances."+loc.clone().subtract(0, 1, 0).getWorld().getName()+"."+loc.clone().subtract(0, 1, 0).getBlockX()+"~"+loc.clone().subtract(0, 1, 0).getBlockY()+"~"+loc.clone().subtract(0, 1, 0).getBlockZ()+ ".mb", null);
+		conf.set("instances."+loc.clone().subtract(0, 1, 0).getWorld().getName()+"."+loc.clone().subtract(0, 1, 0).getBlockX()+"~"+loc.clone().subtract(0, 1, 0).getBlockY()+"~"+loc.clone().subtract(0, 1, 0).getBlockZ()+".seed", null);
+		conf.set("instances."+loc.clone().subtract(0, 1, 0).getWorld().getName()+"."+loc.clone().subtract(0, 1, 0).getBlockX()+"~"+loc.clone().subtract(0, 1, 0).getBlockY()+"~"+loc.clone().subtract(0, 1, 0).getBlockZ(), null);
+		try {
+			conf.save(f);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	
 	}
 	
 	public static boolean contains(Location loc) {

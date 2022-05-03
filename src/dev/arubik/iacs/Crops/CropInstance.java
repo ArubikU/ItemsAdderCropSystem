@@ -100,30 +100,45 @@ public class CropInstance {
 		}
 	}
 
-	public void addMb(int added, Player p) {
+	public void addMb(int addedd, Player p) {
+		
 
-		ModifyMB mmb = new ModifyMB(loc.getBlock(),p, Operation.ADDITION, added, this);
-		try {
-			CustomBlock.getInstance(iacs.getPlugin().getConfig().getString("config.water_farming_station")).place(loc);
-		}catch(Exception e) {}
+		CropInstance thiss = this;
 		
-		if(mmb.isCancelled()) {
-			return;
-		}
-		added = mmb.getAmount();
+		//new ModifyMB(loc.getBlock(),p, Operation.ADDITION, added, this)
+		Bukkit.getScheduler().runTaskAsynchronously(iacs.getPlugin(), new Runnable() {
+			
 
-		mb += added;
-		
-	
-		
-		if(mb >= iacs.getPlugin().getConfig().getInt("config.max-water")) {
+		@Override
+		public void run() {
+			int added = addedd;
+			ModifyMB mmb = new ModifyMB(loc.getBlock(),p, Operation.ADDITION, added, thiss);
 			
-			mb = iacs.getPlugin().getConfig().getInt("config.max-water");
+			iacs.sendBlock(CustomBlock.getInstance(iacs.getPlugin().getConfig().getString("config.water_farming_station")), loc, 100);
 			
-			iacs.MiniMessage(iacs.parsePlaceholder(p, loc, iacs.getPlugin().getConfig().getString("config.max-water-error")), p , 0);
+			if(mmb.isCancelled()) {
+				return;
+			}
+			added = mmb.getAmount();
+
+			mb += added;
+			
+		
+			
+			if(mb >= iacs.getPlugin().getConfig().getInt("config.max-water")) {
+				
+				mb = iacs.getPlugin().getConfig().getInt("config.max-water");
+				
+				iacs.MiniMessage(iacs.parsePlaceholder(p, loc, iacs.getPlugin().getConfig().getString("config.max-water-error")), p , 0);
+			}
+			
+			CropManager.putInstance(loc.getWorld().getBlockAt(loc).getLocation(), thiss);
 		}
+				
 		
-		CropManager.putInstance(loc.getWorld().getBlockAt(loc).getLocation(), this);
+		});
+		
+		
 	}
 	
 	public void modMB(int rest) {
@@ -133,8 +148,10 @@ public class CropInstance {
 		if(mb + rest<=0) {
 			CropManager.removeInstance(loc.getWorld().getBlockAt(loc.clone().subtract(0, 0, 0)).getLocation());
 			CustomBlock.remove(loc.getWorld().getBlockAt(loc.clone().subtract(0, 0, 0)).getLocation() );
-			CustomBlock.getInstance(iacs.getPlugin().getConfig().getString("config.farming_station")).place(loc.getWorld().getBlockAt(loc.clone().subtract(0, 0, 0)).getLocation());
+			
 
+			iacs.sendBlock(CustomBlock.getInstance((String) iacs.getCfg("config.farming_station", "croper:farm")), loc, 150);
+			
 		}else 
 		if(mb + rest> iacs.getPlugin().getConfig().getInt("config.max-water")) {
 			mb = iacs.getPlugin().getConfig().getInt("config.max-water");
@@ -165,107 +182,18 @@ public class CropInstance {
         }
         
         int data = datat;
-        
-
-        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-		if(iacs.getCfg("config.async-not-safe", false).toString().equalsIgnoreCase("TRUE")) {
-			scheduler.runTaskAsynchronously(iacs.getPlugin(), new Runnable() {
-				@Override
-				public void run() {
-					int rest = data;
-					Operation op = Operation.REST;
-
-					for(int d = -2; d <= 2; d++) {
-						for(int e = -2; e <= 2; e++) {
-							
-							Location sprinkler = loc.clone();
-							sprinkler.setX(loc.clone().getBlockX() + d);
-							sprinkler.setZ(loc.clone().getBlockZ() + e);
-							
-							if(CustomBlock.byAlreadyPlaced(sprinkler.getWorld().getBlockAt(sprinkler)) != null) {
-								if(CustomBlock.byAlreadyPlaced(sprinkler.getWorld().getBlockAt(sprinkler)).getNamespacedID().equalsIgnoreCase(
-										iacs.getPlugin().getConfig().getString("config.sprinkler"))) {
-			
-									if(sprinkler.getWorld().getBlockAt(sprinkler).getBlockData() instanceof Waterlogged ) {
-			
-										Waterlogged wl = (Waterlogged) sprinkler.getWorld().getBlockAt(sprinkler).getBlockData();
-										if(wl.isWaterlogged()) {
-											op = Operation.REST_SPRINKLER;
-											rest = 0;
-										}
-									}else if(sprinkler.getWorld().getBlockAt(sprinkler).getType().equals(Material.WATER)
-											|| sprinkler.getWorld().getBlockAt(sprinkler).getType().equals(Material.WATER_CAULDRON)) {
-										op = Operation.REST_SPRINKLER;
-										rest = 0;
-									}
-								}
-							}
-							
-							sprinkler.setY(sprinkler.getBlockY() + 1);
-							
-							if(CustomBlock.byAlreadyPlaced(sprinkler.getWorld().getBlockAt(sprinkler)) != null) {
-								if(CustomBlock.byAlreadyPlaced(sprinkler.getWorld().getBlockAt(sprinkler)).getNamespacedID().equalsIgnoreCase(
-										iacs.getPlugin().getConfig().getString("config.sprinkler"))) {
-			
-									if(sprinkler.getWorld().getBlockAt(sprinkler).getBlockData() instanceof Waterlogged ) {
-			
-										Waterlogged wl = (Waterlogged) sprinkler.getWorld().getBlockAt(sprinkler).getBlockData();
-										if(wl.isWaterlogged()) {
-											op = Operation.REST_SPRINKLER;
-											rest = 0;
-										}
-									}else if(sprinkler.getWorld().getBlockAt(sprinkler).getType().equals(Material.WATER)
-											|| sprinkler.getWorld().getBlockAt(sprinkler).getType().equals(Material.WATER_CAULDRON)) {
-										op = Operation.REST_SPRINKLER;
-										rest = 0;
-									}
-								}
-							}
-						}
-					}
-
-
-					ModifyMB mmb = new ModifyMB(thiss.loc.getBlock(), null, op, rest, thiss);
-					if(mmb.isCancelled()) {
-						return;
-					}
-			
-					rest = mmb.getAmount();
-			
-					if(mb - rest<=0) {
-						CropManager.removeInstance(loc.getWorld().getBlockAt(loc.clone().subtract(0, 0, 0)).getLocation());
-						CustomBlock.remove(loc.getWorld().getBlockAt(loc.clone().subtract(0, 0, 0)).getLocation() );
-						CustomBlock.getInstance(iacs.getPlugin().getConfig().getString("config.farming_station")).place(loc.getWorld().getBlockAt(loc.clone().subtract(0, 0, 0)).getLocation());
-			
-					}else {
-						mb = mb - rest;
-						CropManager.putInstance(thiss.getLoc(), thiss);
-					}
-				
-					
-				}
-				
-			});
-		}
-		else {
-			//iacs.MiniMessage("<rainbow>[IACroper]Error Log", Bukkit.getConsoleSender(), data);
+       
 			int rest = data;
 			Operation op = Operation.REST;
 			for(int d = -2; d <= 2; d++) {
 				for(int e = -2; e <= 2; e++) {
-					
 					Location sprinkler = loc.clone();
 					sprinkler.setX(loc.clone().getBlockX() + d);
 					sprinkler.setZ(loc.clone().getBlockZ() + e);
-					
 					if(CustomBlock.byAlreadyPlaced(sprinkler.getWorld().getBlockAt(sprinkler)) != null) {
 						if(CustomBlock.byAlreadyPlaced(sprinkler.getWorld().getBlockAt(sprinkler)).getNamespacedID().equalsIgnoreCase(
 								iacs.getPlugin().getConfig().getString("config.sprinkler"))) {
-
-							//iacs.MiniMessage("<rainbow>[IACroper]Error Log" + CustomBlock.byAlreadyPlaced(sprinkler.getWorld().getBlockAt(sprinkler)), Bukkit.getConsoleSender(), data);
-	
 							if(sprinkler.getWorld().getBlockAt(sprinkler).getBlockData() instanceof Waterlogged ) {
-	
 								Waterlogged wl = (Waterlogged) sprinkler.getWorld().getBlockAt(sprinkler).getBlockData();
 								if(wl.isWaterlogged()) {
 									op = Operation.REST_SPRINKLER;
@@ -282,9 +210,6 @@ public class CropInstance {
 					if(CustomBlock.byAlreadyPlaced(sprinkler.getWorld().getBlockAt(sprinkler)) != null) {
 						if(CustomBlock.byAlreadyPlaced(sprinkler.getWorld().getBlockAt(sprinkler)).getNamespacedID().equalsIgnoreCase(
 								iacs.getPlugin().getConfig().getString("config.sprinkler"))) {
-
-							//iacs.MiniMessage("<rainbow>[IACroper]Error Log" + CustomBlock.byAlreadyPlaced(sprinkler.getWorld().getBlockAt(sprinkler)), Bukkit.getConsoleSender(), data);
-	
 							if(sprinkler.getWorld().getBlockAt(sprinkler).getBlockData() instanceof Waterlogged ) {
 	
 								Waterlogged wl = (Waterlogged) sprinkler.getWorld().getBlockAt(sprinkler).getBlockData();
@@ -302,44 +227,42 @@ public class CropInstance {
 					
 				}
 			}
-
-
-			ModifyMB mmb = new ModifyMB(loc.clone().getBlock(), null, op, rest, this);
-			if(mmb.isCancelled()) {
-				return;
-			}
-	
-			rest = mmb.getAmount();
 			
+			try {
 
-			mb -= rest;
+				ModifyMB mmb = iacs.castModifyMB(loc.getBlock(), null, op, rest, this);
+				if(mmb.isCancelled()) {
+					return;
+				}
+		
+				rest = mmb.getAmount();
+				
+	
+				mb -= rest;
 
+
+			}catch(Exception e){
+				iacs.MiniMessage(" <red>ERROR</red> <gradient:red:white>[" + e.toString() + "]</gradient>", Bukkit.getConsoleSender(), rest);
+			}
+
+			
 			if(mb <=0) {
-				CropManager.removeInstance(loc);
-				CustomBlock.remove(loc);
+				CropManager.removeInstanceW(loc);
 				
-				//iacs.MiniMessage(thiss.loc.getBlock() + "", Bukkit.getConsoleSender(), 0);;
-				
-				//CustomBlock.remove(loc.clone().add(0, 1, 0));
-				CustomBlock.getInstance(iacs.getPlugin().getConfig().getString("config.farming_station")).place(loc);
+				iacs.sendBlock(CustomBlock.getInstance((String) iacs.getCfg("farming_station", "croper:farm")), loc, 100);
 	
 			}else {
 				CropManager.putInstance(this.getLoc(), this);
 			}
 		}
-	}
 
 	public int getRandomNumber(int min, int max) {
 	    return (int) ((Math.random() * (max - min)) + min);
 	}
 	
 	public void addSeed(CustomBlock cb) {
-		cb.place(seedloc);
-
 		String base = cb.getNamespacedID().replaceAll("_stage_[0-9]+", "");
-		
 		if(!cb.getNamespacedID().endsWith("_stage_1")) {
-		
 			int baselevel = 0;
 			if(this.getCurrentseed() != null) {
 			if(this.getCurrentseed().endsWith("_stage_2")) baselevel = 2;
@@ -372,7 +295,7 @@ public class CropInstance {
                             
                             if(CustomBlock.getInstance(base+"_stage_"+rand) != null) {
                                 this.currentseed = CustomBlock.getInstance(base+"_stage_"+rand).getNamespacedID();
-                                CustomBlock.getInstance(base+"_stage_"+rand).place(seedloc);
+                    			iacs.sendBlock(CustomBlock.getInstance(base+"_stage_"+rand), seedloc, 100);
                             }
                         }else {
                             
@@ -380,19 +303,38 @@ public class CropInstance {
 
                             if(CustomBlock.getInstance(base+"_stage_"+rand) != null) {
                                 this.currentseed = CustomBlock.getInstance(base+"_stage_"+rand).getNamespacedID();
-                                CustomBlock.getInstance(base+"_stage_"+rand).place(seedloc);
+                    			iacs.sendBlock(CustomBlock.getInstance(base+"_stage_"+rand), seedloc, 100);
                             }
                         }
                     }
                 }
             }
 		}
-		
 
 		this.currentseed =  cb.getNamespacedID();
 		
+		CropInstance inthis = this;
+		inthis.currentseed =  cb.getNamespacedID();
+
+		if(iacs.getCfg("config.async-not-safe", false).toString().equalsIgnoreCase("TRUE")) {
+
+	        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+			scheduler.runTaskAsynchronously(iacs.getPlugin(), new Runnable() {
+				@Override
+				public void run() {
+
+					iacs.sendBlock(cb, seedloc, 150);
+				
+				loc.getWorld().playEffect(seedloc, Effect.BONE_MEAL_USE, 5);
+				CropManager.putInstance(loc.getWorld().getBlockAt(loc).getLocation(), inthis);
+				}
+			});
+		}
+		else {
+			iacs.sendBlock(cb, seedloc, 150);
 		loc.getWorld().playEffect(seedloc, Effect.BONE_MEAL_USE, 5);
 		CropManager.putInstance(loc.getWorld().getBlockAt(loc).getLocation(), this);
+		}
 
 	}
 }
