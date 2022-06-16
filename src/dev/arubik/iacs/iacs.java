@@ -44,7 +44,6 @@ import dev.arubik.iacs.listener.RightClickListener;
 import dev.arubik.iacs.listener.eventListenerClass;
 import dev.arubik.iacs.listener.onBreakListener;
 import dev.arubik.iacs.listener.rightClickWater;
-import dev.arubik.iacs.managers.AdvancedLicense;
 import dev.arubik.iacs.managers.CropManager;
 import dev.arubik.iacs.managers.Metrics;
 import dev.arubik.iacs.managers.newManagerIacrops;
@@ -155,21 +154,6 @@ public class iacs extends JavaPlugin{
 		me = new Metrics(this, 15185);
 
 		String user = "%%__USER__%%";
-		if(user.contains("%%_") == false && user.contains("_%%") == false && user.contains("USER") == false) { 
-			AdvancedLicense alincese = new AdvancedLicense();
-			File ff = new File(plugin.getDataFolder(), "config.yml");
-			if (!ff.exists()) {
-				ff.getParentFile().mkdirs();
-			}
-			YamlConfiguration sf = YamlConfiguration.loadConfiguration(ff);
-			FileConfiguration dataf = (FileConfiguration) sf;
-			alincese.setLicense(dataf.getString("license"));
-			if(alincese.register() == false) {
-				Bukkit.getPluginManager().disablePlugin(this);
-				this.onDisable();
-				return;
-			}
-		}
 		
 
 		iacs.MiniMessage("<rainbow>[IACROPER] Encendido</rainbow>", Bukkit.getConsoleSender(), 0);
