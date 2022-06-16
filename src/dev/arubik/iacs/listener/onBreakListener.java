@@ -20,8 +20,10 @@ public class onBreakListener implements Listener{
 	public void OnBlockBreak(dev.lone.itemsadder.api.Events.CustomBlockBreakEvent e) {
 		CustomBlock cb = CustomBlock.getInstance(e.getNamespacedID());
 		final Block clone = e.getBlock();
-		if(CropManager.contains(e.getBlock().getLocation())) {
-		CropManager.removeInstance(e.getBlock().getLocation());
+		if(CropManager.contains(e.getBlock().getLocation())
+				|| e.getNamespacedID().equalsIgnoreCase((String) iacs.getCfg("config.farming_station", "croper:farm"))
+				|| e.getNamespacedID().equalsIgnoreCase((String) iacs.getCfg("config.water_farming_station", "croper:watered_farm"))) {
+			CropManager.removeInstance(e.getBlock().getLocation());
 		}
 		
 		Location loc = e.getBlock().getLocation();

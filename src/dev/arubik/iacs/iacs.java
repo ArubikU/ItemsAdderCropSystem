@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -12,6 +13,7 @@ import javax.annotation.Nullable;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -22,17 +24,30 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
+
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.ListenerPriority;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketEvent;
 
 import dev.arubik.iacs.Crops.CropInstance;
 import dev.arubik.iacs.Crops.CropTimer;
 import dev.arubik.iacs.cmds.TabExecutor;
 import dev.arubik.iacs.events.ModifyMB;
+import dev.arubik.iacs.events.forChunks;
+import dev.arubik.iacs.events.newForChunks;
 import dev.arubik.iacs.events.ModifyMB.Operation;
 import dev.arubik.iacs.listener.RightClickListener;
 import dev.arubik.iacs.listener.eventListenerClass;
 import dev.arubik.iacs.listener.onBreakListener;
+import dev.arubik.iacs.listener.rightClickWater;
 import dev.arubik.iacs.managers.AdvancedLicense;
 import dev.arubik.iacs.managers.CropManager;
+import dev.arubik.iacs.managers.Metrics;
+import dev.arubik.iacs.managers.newManagerIacrops;
 import dev.arubik.iacs.skills.Skills;
 import dev.lone.itemsadder.api.CustomBlock;
 import io.lumine.mythic.utils.adventure.audience.Audience;
@@ -111,18 +126,21 @@ public class iacs extends JavaPlugin{
 	
 
    // private CancellationDetector<BlockBreakEvent> detector = new CancellationDetector<BlockBreakEvent>(BlockBreakEvent.class);
+	public NamespacedKey genNSK(String s) {
+		return new NamespacedKey(this, s);
+		
+	}
+	
+	public static Metrics me;
 	
 	@Override
 	public void onEnable() {
 		plugin = this;
 		registrarConfig();
+
+		listenerProtocol.onEnable();
 		
-//		detector.addListener(new CancelListener<BlockBreakEvent>() {
-//			@Override
-//			public void onCancelled(Plugin plugin, BlockBreakEvent event) {
-//				System.out.println(event + " cancelled by " + plugin);
-//			}
-//		});
+		new targetBlock();
 		
 
 		if(iacs.getCfg("config.async-not-safe", false).toString().equalsIgnoreCase("TRUE")) {
@@ -130,8 +148,11 @@ public class iacs extends JavaPlugin{
 		}
 		
 		
+		
 		plugin.getCommand("iacrop").setExecutor(new TabExecutor());
 		plugin.getCommand("iacrop").setTabCompleter(new TabExecutor());
+		
+		me = new Metrics(this, 15185);
 
 		String user = "%%__USER__%%";
 		if(user.contains("%%_") == false && user.contains("_%%") == false && user.contains("USER") == false) { 
@@ -150,6 +171,11 @@ public class iacs extends JavaPlugin{
 			}
 		}
 		
+
+		iacs.MiniMessage("<rainbow>[IACROPER] Encendido</rainbow>", Bukkit.getConsoleSender(), 0);
+		iacs.MiniMessage("<green>[IACROPER] Version:"+plugin.getDescription().getVersion(), Bukkit.getConsoleSender(), 0);
+		iacs.MiniMessage("<green>[IACROPER] Comprador:"+plugin.getDescription().getDescription(), Bukkit.getConsoleSender(), 0);
+		
 		File f = new File(getDataFolder(), "dont-touch.yml");
 		if (!f.exists()) {
 			f.getParentFile().mkdirs();
@@ -160,14 +186,31 @@ public class iacs extends JavaPlugin{
 		cm = new CropManager(data);
 		
 
-		Bukkit.getPluginManager().registerEvents(new RightClickListener(), this);
+
+
+        if(iacs.getCfg("config.block-mode", "false").toString().equalsIgnoreCase("TRUE")) {
+
+    		Bukkit.getPluginManager().registerEvents(new RightClickListener(), this);
+	        
+        }
+        if(iacs.getCfg("config.furniture-mode", "false").toString().equalsIgnoreCase("TRUE")) {
+        	new newManagerIacrops();
+	        
+        }
+		
 		Bukkit.getPluginManager().registerEvents(new onBreakListener(), this);
+		Bukkit.getPluginManager().registerEvents(new rightClickWater(), this);
 		Bukkit.getPluginManager().registerEvents(new Skills(), this);
 		Bukkit.getPluginManager().registerEvents(new eventListenerClass(), this);
 		startTimer();
 	}
 	
 	public static void sendBlock(CustomBlock cb, Location loc, int distance) {
+		if(iacs.getCfg("config.block-packets", "false").toString().equalsIgnoreCase("false")) {
+			cb.place(loc);
+			return;
+			
+		}
 
 		
 		if(cb.getNamespacedID().equalsIgnoreCase((String) iacs.getCfg("config.farming_station", ""))
@@ -178,33 +221,105 @@ public class iacs extends JavaPlugin{
 			});
 			
 		}else {
-		
-		Bukkit.getScheduler().runTask(iacs.getPlugin(), () ->{
-			loc.getWorld().setBlockData(loc, cb.getBaseBlockData());
-			loc.getWorld().getBlockAt(loc).setBlockData(cb.getBaseBlockData());
-			dev.lone.itemsadder.api.CustomBlock$Advanced.placeInCustomRegion(cb, loc);
-			Bukkit.getOnlinePlayers().forEach(player -> {
-				Location newl = player.getLocation().clone();
-				newl.setY(loc.getY());
-				if(newl.distance(loc) < distance) {
-					player.sendBlockChange(loc, cb.getBaseBlockData());
-				}
-			});
-		});
-		
 
-		Bukkit.getScheduler().runTaskLater(iacs.getPlugin(), () ->{
-			Bukkit.getOnlinePlayers().forEach(player -> {
-				Location newl = player.getLocation().clone();
-				newl.setY(loc.getY());
-				if(newl.distance(loc) < distance) {
-					player.sendBlockChange(loc, cb.getBaseBlockData());
-				}
-			});
-		}, 2);
-		
-		
+			if(loc.getBlock().getType() == cb.getBaseBlockData().getMaterial()) {
+				Bukkit.getScheduler().runTask(iacs.getPlugin(), () ->{
+					loc.getWorld().setBlockData(loc, cb.getBaseBlockData());
+					loc.getWorld().getBlockAt(loc).setBlockData(cb.getBaseBlockData());
+					dev.lone.itemsadder.api.CustomBlock$Advanced.placeInCustomRegion(cb, loc);
+					Bukkit.getOnlinePlayers().forEach(player -> {
+						Location newl = player.getLocation().clone();
+						newl.setY(loc.getY());
+						if(newl.distance(loc) < distance) {
+							player.sendBlockChange(loc, cb.getBaseBlockData());
+						}
+					});
+				});
+				Bukkit.getScheduler().runTaskLater(iacs.getPlugin(), () ->{
+					Bukkit.getOnlinePlayers().forEach(player -> {
+						Location newl = player.getLocation().clone();
+						newl.setY(loc.getY());
+						if(newl.distance(loc) < distance) {
+							player.sendBlockChange(loc, cb.getBaseBlockData());
+						}
+					});
+				}, 2);
+			}else {
+				loc.getBlock().setType(cb.getBaseBlockData().getMaterial());
+				Bukkit.getScheduler().runTask(iacs.getPlugin(), () ->{
+					loc.getWorld().setBlockData(loc, cb.getBaseBlockData());
+					loc.getWorld().getBlockAt(loc).setBlockData(cb.getBaseBlockData());
+					dev.lone.itemsadder.api.CustomBlock$Advanced.placeInCustomRegion(cb, loc);
+					Bukkit.getOnlinePlayers().forEach(player -> {
+						Location newl = player.getLocation().clone();
+						newl.setY(loc.getY());
+						if(newl.distance(loc) < distance) {
+							player.sendBlockChange(loc, cb.getBaseBlockData());
+						}
+					});
+				});
+				Bukkit.getScheduler().runTaskLater(iacs.getPlugin(), () ->{
+					Bukkit.getOnlinePlayers().forEach(player -> {
+						Location newl = player.getLocation().clone();
+						newl.setY(loc.getY());
+						if(newl.distance(loc) < distance) {
+							player.sendBlockChange(loc, cb.getBaseBlockData());
+						}
+					});
+				}, 2);
+			}
 
+		}
+	}
+	
+	
+	public static Boolean isRandom(int size) {
+		switch (size) {
+		case 0: return false;
+			case 1:{
+				return ((new Random()).nextFloat() + "").endsWith("1");
+			}
+			case 2:{
+				return (((new Random()).nextFloat() + "").endsWith("1") || ((new Random()).nextFloat() + "").endsWith("2"));
+			}
+			case 3:{
+				return (((new Random()).nextFloat() + "").endsWith("1") || ((new Random()).nextFloat() + "").endsWith("2")
+					|| ((new Random()).nextFloat() + "").endsWith("3"));
+			}
+			case 4:{
+				return (((new Random()).nextFloat() + "").endsWith("1") || ((new Random()).nextFloat() + "").endsWith("2")
+						|| ((new Random()).nextFloat() + "").endsWith("3") || ((new Random()).nextFloat() + "").endsWith("4"));
+			}
+			case 5:{
+				return (((new Random()).nextFloat() + "").endsWith("1") || ((new Random()).nextFloat() + "").endsWith("2")
+						|| ((new Random()).nextFloat() + "").endsWith("3") || ((new Random()).nextFloat() + "").endsWith("4")
+						|| ((new Random()).nextFloat() + "").endsWith("5"));
+			}
+			case 6:{
+				return (((new Random()).nextFloat() + "").endsWith("1") || ((new Random()).nextFloat() + "").endsWith("2")
+						|| ((new Random()).nextFloat() + "").endsWith("3") || ((new Random()).nextFloat() + "").endsWith("4")
+						|| ((new Random()).nextFloat() + "").endsWith("5") || ((new Random()).nextFloat() + "").endsWith("6"));
+			}
+			case 7:{
+				return (((new Random()).nextFloat() + "").endsWith("1") || ((new Random()).nextFloat() + "").endsWith("2")
+						|| ((new Random()).nextFloat() + "").endsWith("3") || ((new Random()).nextFloat() + "").endsWith("4")
+						|| ((new Random()).nextFloat() + "").endsWith("5") || ((new Random()).nextFloat() + "").endsWith("6")
+						|| ((new Random()).nextFloat() + "").endsWith("7"));
+			}
+			case 8:{
+				return (((new Random()).nextFloat() + "").endsWith("1") || ((new Random()).nextFloat() + "").endsWith("2")
+						|| ((new Random()).nextFloat() + "").endsWith("3") || ((new Random()).nextFloat() + "").endsWith("4")
+						|| ((new Random()).nextFloat() + "").endsWith("5") || ((new Random()).nextFloat() + "").endsWith("6")
+						|| ((new Random()).nextFloat() + "").endsWith("7") || ((new Random()).nextFloat() + "").endsWith("8"));
+			}
+			case 9:{
+				return (((new Random()).nextFloat() + "").endsWith("1") || ((new Random()).nextFloat() + "").endsWith("2")
+						|| ((new Random()).nextFloat() + "").endsWith("3") || ((new Random()).nextFloat() + "").endsWith("4")
+						|| ((new Random()).nextFloat() + "").endsWith("5") || ((new Random()).nextFloat() + "").endsWith("6")
+						|| ((new Random()).nextFloat() + "").endsWith("7") || ((new Random()).nextFloat() + "").endsWith("8")
+						|| ((new Random()).nextFloat() + "").endsWith("9"));
+			}
+			default: return true;
 		}
 	}
 	
@@ -219,40 +334,64 @@ public class iacs extends JavaPlugin{
 			}
 		}
 		
-		if(p != null) {
-			for(String s : message.split(" ")) {
-				if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-					if(s.startsWith("placeholder:")) {
-						returned = returned.replace(s, PlaceholderAPI.setBracketPlaceholders(p, s.replaceFirst("placeholder:", "")));
-					}
-				}
-				if(s.startsWith("player:displayname")) {
-					returned = returned.replace(s, p.getDisplayName());
-				}
-				if(s.startsWith("player:name")) {
-					returned = returned.replace(s, p.getName());
-				}
-				if(s.startsWith("player:uuid")) {
-					returned = returned.replace(s, p.getUniqueId().toString());
-				}
+		if(loc!=null) {
+			if(returned.contains("location:x")) {
+				returned = returned.replace("location:x", loc.getBlockX()+"");
+			}
+			if(returned.contains("location:y")) {
+				returned = returned.replace("location:y", loc.getBlockY()+"");
+			}
+			if(returned.contains("location:z")) {
+				returned = returned.replace("location:z", loc.getBlockZ()+"");
+			}
+			if(returned.contains("location:world")) {
+				returned = returned.replace("location:world", loc.getWorld().getName());
+			}
+			if(returned.contains("location:chunkx")) {
+				returned = returned.replace("location:chunkx", loc.getChunk().getX()+"");
+			}
+			if(returned.contains("location:chunkz")) {
+				returned = returned.replace("location:chunkz", loc.getChunk().getZ()+"");
+			}
+			if(returned.contains("location:chunk_loaded")) {
+				returned = returned.replace("location:chunk_loaded", loc.getChunk().isLoaded()+"");
 			}
 		}
+		
+		if(loc.getBlock()!=null) {
+
+			if(returned.contains("block:material")) {
+				returned = returned.replace("block:material", loc.getBlock().getType().toString());
+			}
+		}
+		
 		
 		if(CropManager.getInstance(loc) != null) {
-
-			for(String s : message.split(" ")) {
-				if(s.startsWith("instance:mb")) {
+				if(returned.contains("instance:mb")) {
 					returned = returned.replace("instance:mb", CropManager.getInstance(loc).getMb() + "");
 				}
-				if(s.startsWith("instance:seed")) {
+				if(returned.contains("instance:seed")) {
 					returned = returned.replace("instance:seed", CropManager.getInstance(loc).getCurrentseed() + "");
 				}
-				if(s.startsWith("instance:location")) {
+				if(returned.contains("instance:location")) {
 					returned = returned.replace("instance:location", CropManager.getInstance(loc).getLoc() + "");
 				}
+		}
+
+		if(p != null) {
+				if(returned.contains("player:displayname")) {
+					returned = returned.replace("player:displayname", p.getDisplayName());
+				}
+				if(returned.contains("player:name")) {
+					returned = returned.replace("player:name", p.getName());
+				}
+				if(returned.contains("player:uuid")) {
+					returned = returned.replace("player:uuid", p.getUniqueId().toString());
+				}
+				if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+					returned = PlaceholderAPI.setBracketPlaceholders(p, returned);
 			}
 		}
-		
 		return returned;
 	}
 	
@@ -272,6 +411,8 @@ public class iacs extends JavaPlugin{
 		}
 	}
 	
+	
+	
 	public static void MiniMessage(Object s,Player player, int id /* 0: message 1: actionbar*/) {
 		BukkitAudiences au = BukkitAudiences.create(iacs.getPlugin());
 		Audience p= Audience.empty();
@@ -282,13 +423,22 @@ public class iacs extends JavaPlugin{
 	}
 	
 	//ConsoleCommandSender 
-	public static void MiniMessage(Object s,ConsoleCommandSender player, int id /* 0: message 1: actionbar*/) {
+	public static void MiniMessage(Object s,@Nullable ConsoleCommandSender player, int id /* 0: message 1: actionbar*/) {
+		if(player == null) {
+			BukkitAudiences au = BukkitAudiences.create(iacs.getPlugin());
+			Audience p= Audience.empty();
+			p = au.sender(Bukkit.getConsoleSender());
+			MiniMessage mm = MiniMessage.get();
+			Component parsed = mm.deserialize(s.toString());
+			iacs.sendMessage(p, parsed, id);
+		}else {
 		BukkitAudiences au = BukkitAudiences.create(iacs.getPlugin());
 		Audience p= Audience.empty();
 		p = au.sender(player);
 		MiniMessage mm = MiniMessage.get();
 		Component parsed = mm.deserialize(s.toString());
 		iacs.sendMessage(p, parsed, id);
+		}
 	}
 	//CommandSender 
 	public static void MiniMessage(Object s,CommandSender player, int id /* 0: message 1: actionbar*/) {
@@ -299,6 +449,7 @@ public class iacs extends JavaPlugin{
 		Component parsed = mm.deserialize(s.toString());
 		iacs.sendMessage(p, parsed, id);
 	}
+	
 	
 	public static void sendMessage(Audience p, Component parsed, int id) {
 
@@ -329,8 +480,10 @@ public class iacs extends JavaPlugin{
 		if(timer != null) {
 			
 		CropTimer.stopTimer(timer.getTaskID());
+		CropTimer.stopTimer(timer.gettTaskID());
 		
 		}
+		listenerProtocol.onDisable();
 		if(cm != null) {
 
 		File f = new File(getDataFolder(), "dont-touch.yml");
@@ -387,10 +540,55 @@ public class iacs extends JavaPlugin{
 		iacs.config = data;
 
 	}
-	
+
+	public static Boolean mythiclib() {
+
+		File f = new File(iacs.getPlugin().getDataFolder(), "config.yml");
+		if (!f.exists()) {
+			f.getParentFile().mkdirs();
+		}
+		YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
+		FileConfiguration data = (FileConfiguration) s;
+		
+		return s.getBoolean("config.mythic-lib");
+	}
 	
 	public static Object getCfg(String rute, Object temp) {
 		File f = new File(iacs.getPlugin().getDataFolder(), "config.yml");
+		if (!f.exists()) {
+			f.getParentFile().mkdirs();
+		}
+		YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
+		FileConfiguration data = (FileConfiguration) s;
+		
+		if(data.get(rute) == null) {
+			return temp;
+		}
+		
+		if(temp instanceof Boolean) {
+			return data.getBoolean(rute);
+		}
+        if(temp instanceof String) {
+            return data.getString(rute);
+        }
+        if(temp instanceof Integer){
+            return data.getInt(rute);
+        }
+        if(temp instanceof List<?>){
+            return data.getList(rute);
+        }
+        if(temp instanceof Double) {
+        	return data.getDouble(rute);
+        }
+		if(data.get(rute) != null) {
+			return data.get(rute);
+		}
+		return temp;
+	}
+	
+
+	public static Object getCfgFile(String rute, Object temp,String rote) {
+		File f = new File(iacs.getPlugin().getDataFolder(), rote);
 		if (!f.exists()) {
 			f.getParentFile().mkdirs();
 		}

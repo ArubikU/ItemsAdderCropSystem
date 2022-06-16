@@ -1,9 +1,11 @@
 name: IACroper
 main: dev.arubik.iacs.iacs
-version: 1.0
+version: "%%__RESOURCE_VERSION__%%"
+author: SodaDevs
 api-version: 1.13
 depend: [ItemsAdder, MythicLib]
-description: "key"
+soft-depend: [PlaceholderAPI]
+description: "%%__USERNAME__%%"
 commands:
       iacrop:
          description: general command

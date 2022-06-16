@@ -17,7 +17,22 @@ public class TabExecutor implements org.bukkit.command.TabExecutor{
 
 	@Override
 	public List<String> onTabComplete(CommandSender sender, Command cmd, String all, String[] args) {
-		return new ArrayList<String>();
+		
+		List<String> result = new ArrayList<String>();
+		
+
+		if(!sender.isOp() || !(sender instanceof Player)){
+			return result;
+		}
+		
+		
+		result.add("reload");
+		result.add("contact");
+		result.add("remove <world>");
+		String user = "%%__USER__%%";
+		
+		return result;
+		
 	}
 
 	@Override
@@ -32,7 +47,9 @@ public class TabExecutor implements org.bukkit.command.TabExecutor{
 			if(args[0].toUpperCase().equalsIgnoreCase("reload")){
 					iacs.getPlugin().registrarConfig();
 					iacs.getPlugin().reloadConfig();
-					iacs.MiniMessage("<rainbow>[IACROP] Recargado!</rainbow>", sender, 0);
+
+					String user = "%%__USER__%%";
+					iacs.MiniMessage("<rainbow>[IACROP] Reloaded!</rainbow>", sender, 0);
 				}
 			else if(args[0].toUpperCase().equalsIgnoreCase("remove")){
 
@@ -48,6 +65,9 @@ public class TabExecutor implements org.bukkit.command.TabExecutor{
 					
 					dataf.set("config.worlds", list);
 					dataf.save(ff);
+					iacs.getPlugin().registrarConfig();
+					iacs.getPlugin().reloadConfig();
+					iacs.MiniMessage("<rainbow>[IACROP] World disabled!</rainbow>", sender, 0);
 				}
 			
 			

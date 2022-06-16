@@ -1,6 +1,7 @@
 package dev.arubik.iacs.Crops;
 
 import org.bukkit.Bukkit;
+
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,7 +19,13 @@ import dev.arubik.iacs.managers.LocSave;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 
+
+
+/**
+ * This class is the instace for all the farms
+ */
 public class CropInstance {
+	
 	public Location loc;
 	
 	public Location seedloc;
@@ -47,20 +54,26 @@ public class CropInstance {
 		this.mb = mb;
 	}
 
+	@Deprecated
 	public int getBonemeal() {
 		return bonemeal;
 	}
 
+	@Deprecated
 	public void setBonemeal(int bonemeal) {
+
+		String user = "%%__USER__%%";
 		this.bonemeal = bonemeal;
 	}
 
 	public String currentseed;
 	public int mb;
-	public int bonemeal;
+	
+	@Deprecated
+	public int bonemeal = 0;
 
 	public CropInstance(ConfigurationSection conf) {
-		this.bonemeal = conf.getInt("bonemeal");
+		
 		this.loc = new Location(Bukkit.getWorld(conf.getString("loc.world"))
 				, conf.getInt("loc.x")
 				, conf.getInt("loc.y")
@@ -89,10 +102,12 @@ public class CropInstance {
 		CropManager.putInstance(loc, this);
 	}
 
+	@Deprecated
 	public void addbonemeal(int added) {
 		this.bonemeal += added;
 	}
 
+	@Deprecated
 	public void takebonemeal(int added) {
 		this.bonemeal -= added;
 		if(this.bonemeal < 0) {
@@ -100,6 +115,18 @@ public class CropInstance {
 		}
 	}
 
+
+    /**
+     * This is the method called when you changue th current seed of the instance
+     *
+     * @param  addedd {@link java.lang.Integer}.
+     *         <br>The added MiliBuckets.
+     * @param  p {@link org.bukkit.entity.Player}.
+     * 		   <br> The player add mb
+     *
+     * @return {@link java.lang.Void}
+     */
+	
 	public void addMb(int addedd, Player p) {
 		
 
@@ -141,6 +168,16 @@ public class CropInstance {
 		
 	}
 	
+
+    /**
+     * This is the method called to take mili buckets using api
+     *
+     * @param  rest {@link java.lang.Integer}.
+     *         <br>The taked MiliBuckets.
+     *
+     * @return {@link java.lang.Void}
+     */
+	
 	public void modMB(int rest) {
 		CropInstance thiss = this;
 		
@@ -163,27 +200,40 @@ public class CropInstance {
 		}
 	}
 	
-	public void takeMB(int temp,CustomBlock discordo) {
-		
-		CropInstance thiss = this;
+
+    /**
+     * This is the method called when you changue th current seed of the instance
+     *
+     * @param  temp {@link java.lang.Integer}.
+     *         <br>The taked MiliBuckets.
+     * @param  cs {@link java.lang.Integer}.
+     * 		   <br> the customblock of taked mb
+     *
+     * @return {@link java.lang.Void}
+     */
+	
+	public void takeMB(int temp,CustomStack cs) {
 
         int datat = temp;
         
 
-		String base = discordo.getNamespacedID().replaceAll("_stage_[0-9]+", "");
+		String base = cs.getNamespacedID().replaceAll("_stage_[0-9]+", "");
 
         if(CustomStack.getInstance(base) != null) {
-            CustomStack cs = CustomStack.getInstance(base);
             FileConfiguration datastorage = cs.getConfig();
             
             if(datastorage.getString("items."+cs.getId() + ".plant.extra-water") != null) {
             	datat += Integer.valueOf(datastorage.getString("items."+cs.getId() + ".plant.extra-water"));
             }
+
+            if(datastorage.getString("items."+cs.getId() + ".plant.light-level") != null) {
+            	if(this.loc.getBlock().getLightLevel() < datastorage.getInt("items."+cs.getId() + ".plant.light-level")) {
+            		return;
+            	}
+            }
         }
         
-        int data = datat;
        
-			int rest = data;
 			Operation op = Operation.REST;
 			for(int d = -2; d <= 2; d++) {
 				for(int e = -2; e <= 2; e++) {
@@ -193,34 +243,38 @@ public class CropInstance {
 					if(CustomBlock.byAlreadyPlaced(sprinkler.getWorld().getBlockAt(sprinkler)) != null) {
 						if(CustomBlock.byAlreadyPlaced(sprinkler.getWorld().getBlockAt(sprinkler)).getNamespacedID().equalsIgnoreCase(
 								iacs.getPlugin().getConfig().getString("config.sprinkler"))) {
-							if(sprinkler.getWorld().getBlockAt(sprinkler).getBlockData() instanceof Waterlogged ) {
-								Waterlogged wl = (Waterlogged) sprinkler.getWorld().getBlockAt(sprinkler).getBlockData();
+
+							
+							
+							if(sprinkler.getWorld().getBlockAt(sprinkler.clone().subtract(0, 1, 0)).getBlockData() instanceof Waterlogged ) {
+								Waterlogged wl = (Waterlogged) sprinkler.getWorld().getBlockAt(sprinkler.clone().subtract(0, 1, 0)).getBlockData();
 								if(wl.isWaterlogged()) {
 									op = Operation.REST_SPRINKLER;
-									rest = 0;
+									datat = 0;
 								}
-							}else if(sprinkler.getWorld().getBlockAt(sprinkler).getType().equals(Material.WATER)
-									|| sprinkler.getWorld().getBlockAt(sprinkler).getType().equals(Material.WATER_CAULDRON)) {
+							}else if(sprinkler.getWorld().getBlockAt(sprinkler.clone().subtract(0, 1, 0)).getType().equals(Material.WATER)
+									|| sprinkler.getWorld().getBlockAt(sprinkler.clone().subtract(0, 1, 0)).getType().equals(Material.WATER_CAULDRON)) {
 								op = Operation.REST_SPRINKLER;
-								rest = 0;
+								datat = 0;
 							}
 						}
 					}
 					sprinkler.setY(sprinkler.getBlockY() + 1);
+					
 					if(CustomBlock.byAlreadyPlaced(sprinkler.getWorld().getBlockAt(sprinkler)) != null) {
 						if(CustomBlock.byAlreadyPlaced(sprinkler.getWorld().getBlockAt(sprinkler)).getNamespacedID().equalsIgnoreCase(
 								iacs.getPlugin().getConfig().getString("config.sprinkler"))) {
-							if(sprinkler.getWorld().getBlockAt(sprinkler).getBlockData() instanceof Waterlogged ) {
+							if(sprinkler.getWorld().getBlockAt(sprinkler.clone().subtract(0, 1, 0)).getBlockData() instanceof Waterlogged ) {
 	
-								Waterlogged wl = (Waterlogged) sprinkler.getWorld().getBlockAt(sprinkler).getBlockData();
+								Waterlogged wl = (Waterlogged) sprinkler.getWorld().getBlockAt(sprinkler.clone().subtract(0, 1, 0)).getBlockData();
 								if(wl.isWaterlogged()) {
 									op = Operation.REST_SPRINKLER;
-									rest = 0;
+									datat = 0;
 								}
-							}else if(sprinkler.getWorld().getBlockAt(sprinkler).getType().equals(Material.WATER)
-									|| sprinkler.getWorld().getBlockAt(sprinkler).getType().equals(Material.WATER_CAULDRON)) {
+							}else if(sprinkler.getWorld().getBlockAt(sprinkler.clone().subtract(0, 1, 0)).getType().equals(Material.WATER)
+									|| sprinkler.getWorld().getBlockAt(sprinkler.clone().subtract(0, 1, 0)).getType().equals(Material.WATER_CAULDRON)) {
 								op = Operation.REST_SPRINKLER;
-								rest = 0;
+								datat = 0;
 							}
 						}
 					}
@@ -230,19 +284,19 @@ public class CropInstance {
 			
 			try {
 
-				ModifyMB mmb = iacs.castModifyMB(loc.getBlock(), null, op, rest, this);
+				ModifyMB mmb = iacs.castModifyMB(loc.getBlock(), null, op, datat, this);
 				if(mmb.isCancelled()) {
 					return;
 				}
 		
-				rest = mmb.getAmount();
+				datat = mmb.getAmount();
 				
 	
-				mb -= rest;
+				mb -= datat;
 
 
 			}catch(Exception e){
-				iacs.MiniMessage(" <red>ERROR</red> <gradient:red:white>[" + e.toString() + "]</gradient>", Bukkit.getConsoleSender(), rest);
+				iacs.MiniMessage(" <red>ERROR</red> <gradient:red:white>[" + e.toString() + "]</gradient>", Bukkit.getConsoleSender(), datat);
 			}
 
 			
@@ -256,12 +310,39 @@ public class CropInstance {
 			}
 		}
 
+
+    /**
+     * This is the method called when you changue the current seed of the instance
+     *
+     * @param  min {@link java.lang.Integer}.
+     * @param  max {@link java.lang.Integer}.
+     *
+     * @return {@value random}
+     */
+	
 	public int getRandomNumber(int min, int max) {
 	    return (int) ((Math.random() * (max - min)) + min);
 	}
 	
-	public void addSeed(CustomBlock cb) {
+
+    /**
+     * This is the method called when you changue th current seed of the instance
+     *
+     * @param  cb
+     *         A {@link dev.lone.itemsadder.api.CustomBlock}.
+     *
+     * @return void.
+     */
+	
+	public void addSeed(CustomBlock cb, Boolean bonemeal) {
+		
+		if(bonemeal) {
+			if(cb.getConfig().getString("items."+cb.getId()) != null) {
+			}
+		}else {
+		
 		String base = cb.getNamespacedID().replaceAll("_stage_[0-9]+", "");
+        CustomStack cs = CustomStack.getInstance(base);
 		if(!cb.getNamespacedID().endsWith("_stage_1")) {
 			int baselevel = 0;
 			if(this.getCurrentseed() != null) {
@@ -281,17 +362,25 @@ public class CropInstance {
  			
             if(baselevel != 0){
                 if(CustomStack.getInstance(base) != null) {
-                    CustomStack cs = CustomStack.getInstance(base);
                     FileConfiguration data = cs.getConfig();
+                    
+
+                    if(data.getString("items."+cs.getId() + ".plant.light-level") != null) {
+                    	if(this.loc.getBlock().getLightLevel() < data.getInt("items."+cs.getId() + ".plant.light-level")) {
+                    		return;
+                    	}
+                    }
                     
                     if(data.getString("items."+cs.getId()+".plant.stages-grow") != null) {
                         String stages = data.getString("items."+cs.getId()+".plant.stages-grow");
                         
-                        if(stages.contains("-") && stages.split("-").length == 2) {
-                            int inicial = Integer.valueOf(stages.split("-")[0]);
-                            int end = Integer.valueOf(stages.split("-")[1]);
+                        if(stages.contains("-") && stages.split("~").length == 2) {
+                            int inicial = Integer.valueOf(stages.split("~")[0]);
+                            int end = Integer.valueOf(stages.split("~")[1]);
                             
                             int rand = getRandomNumber(inicial,end) + baselevel ;
+
+                            if(rand > 14) rand = 14;
                             
                             if(CustomBlock.getInstance(base+"_stage_"+rand) != null) {
                                 this.currentseed = CustomBlock.getInstance(base+"_stage_"+rand).getNamespacedID();
@@ -301,6 +390,8 @@ public class CropInstance {
                             
                             int rand = Integer.valueOf(data.getString("items."+cs.getId()+".plant.stages-grow")) + baselevel;
 
+                            if(rand > 14) rand = 14;
+                            
                             if(CustomBlock.getInstance(base+"_stage_"+rand) != null) {
                                 this.currentseed = CustomBlock.getInstance(base+"_stage_"+rand).getNamespacedID();
                     			iacs.sendBlock(CustomBlock.getInstance(base+"_stage_"+rand), seedloc, 100);
@@ -311,6 +402,19 @@ public class CropInstance {
             }
 		}
 
+		
+		if(cs.getConfig().getString("items."+cs.getId()+".seed.gold") != null &&
+				cs.getConfig().getString("items."+cs.getId()+".seed.gold-percent") != null) {
+			if(CustomBlock.getInstance(cs.getConfig().getString("items."+cs.getId()+".seed.gold")) != null) {
+				CustomBlock cbs = CustomBlock.getInstance(cs.getConfig().getString("items."+cs.getId()+".seed.gold"));
+				if(iacs.isRandom(Integer.valueOf(cs.getConfig().getString("items."+cs.getId()+".seed.gold-percent")))){
+					cb = cbs;
+				}
+			}
+		}
+		
+		CustomBlock tdata = cb;
+		
 		this.currentseed =  cb.getNamespacedID();
 		
 		CropInstance inthis = this;
@@ -322,18 +426,22 @@ public class CropInstance {
 			scheduler.runTaskAsynchronously(iacs.getPlugin(), new Runnable() {
 				@Override
 				public void run() {
-
-					iacs.sendBlock(cb, seedloc, 150);
-				
-				loc.getWorld().playEffect(seedloc, Effect.BONE_MEAL_USE, 5);
+					iacs.sendBlock(tdata, seedloc, 150);
+					
+					if(!iacs.getCfg("config.bonemeal-effect", true).toString().equalsIgnoreCase("false")) {
+						loc.getWorld().playEffect(seedloc, Effect.BONE_MEAL_USE, 5);
+					}
 				CropManager.putInstance(loc.getWorld().getBlockAt(loc).getLocation(), inthis);
 				}
 			});
 		}
 		else {
 			iacs.sendBlock(cb, seedloc, 150);
-		loc.getWorld().playEffect(seedloc, Effect.BONE_MEAL_USE, 5);
-		CropManager.putInstance(loc.getWorld().getBlockAt(loc).getLocation(), this);
+			if(!iacs.getCfg("config.bonemeal-effect", true).toString().equalsIgnoreCase("false")) {
+				loc.getWorld().playEffect(seedloc, Effect.BONE_MEAL_USE, 5);
+			}
+			CropManager.putInstance(loc.getWorld().getBlockAt(loc).getLocation(), this);
+		}
 		}
 
 	}

@@ -24,7 +24,7 @@ public class eventListenerClass implements Listener{
 		switch(e.getOp()) {
 			case ADDITION:{
 				tag("~OnAddWater").forEach(event ->{
-					SkillEvent skill = new SkillEvent(e.getB().getLocation(), LineConfig.of(event), e.getPlayer());
+							SkillEvent skill = new SkillEvent(e.getB().getLocation(), LineConfig.of(event), e.getPlayer());
 							if(e.isCancelled() != false) {
 								if(skill.getLc().getInteger("AddWater", 0) != 0) {
 									e.setAmount(e.getAmount() + skill.getLc().getInteger("AddWater", 0));
@@ -37,12 +37,18 @@ public class eventListenerClass implements Listener{
 								}
 							}
 							
+
+							if(skill.isCancelled() == true) {
+								e.setCancelled(true);
+							}
+							
+							
 						});
 						
 			}
 			case REST:{
 				tag("~OnTakeWater").forEach(event ->{
-					SkillEvent skill = new SkillEvent(e.getB().getLocation(), LineConfig.of(event), e.getPlayer());
+					SkillEvent skill  = new SkillEvent(e.getB().getLocation(), LineConfig.of(event), e.getPlayer());
 							if(e.isCancelled() != false) {
 								if(skill.getLc().getInteger("AddWater", 0) != 0) {
 									e.setAmount(e.getAmount() + skill.getLc().getInteger("AddWater", 0));
@@ -54,6 +60,12 @@ public class eventListenerClass implements Listener{
 									e.setAmount(skill.getLc().getInteger("SetWater", 0));
 								}
 							}
+							
+
+							if(skill.isCancelled() == true) {
+								e.setCancelled(true);
+							}
+							
 						
 				});
 			}
@@ -73,6 +85,12 @@ public class eventListenerClass implements Listener{
 								}
 							}
 							
+
+							if(skill.isCancelled() == true) {
+								e.setCancelled(true);
+							}
+							
+							
 					
 				});
 			}
@@ -83,12 +101,78 @@ public class eventListenerClass implements Listener{
 	public void onBreak(dev.lone.itemsadder.api.Events.CustomBlockBreakEvent e) {
 
 		tag("~BlockBreack").forEach(event ->{
-			new SkillEvent(e.getBlock().getLocation(), LineConfig.of(event), e.getPlayer());
+			SkillEvent skill = new SkillEvent(e.getBlock().getLocation(), LineConfig.of(event), e.getPlayer());
+			
+			if(skill.isCancelled() == true) {
+				e.setCancelled(true);
+			}
+			
 		});
 		
 		tag("~BlockBreak").forEach(event ->{
-			new SkillEvent(e.getBlock().getLocation(), LineConfig.of(event), e.getPlayer());
+			SkillEvent skill = new SkillEvent(e.getBlock().getLocation(), LineConfig.of(event), e.getPlayer());
+
+			if(skill.isCancelled() == true) {
+				e.setCancelled(true);
+			}
+			
 		});
+	}
+
+	@EventHandler
+	public void onInteractVanilla(org.bukkit.event.player.PlayerInteractEvent e) {
+		
+		switch(e.getAction()) {
+		case RIGHT_CLICK_BLOCK:{
+			tag("~RightClickVanilla").forEach(event ->{
+				SkillEvent skill = new SkillEvent(e.getClickedBlock().getLocation(), LineConfig.of(event), e.getPlayer());
+				if(skill.isCancelled() == true) {
+					e.setCancelled(true);
+				}
+				});
+			
+		}
+	case LEFT_CLICK_AIR:{
+		tag("~LeftClickAirVanilla").forEach(event ->{
+			SkillEvent skill = new SkillEvent(e.getClickedBlock().getLocation(), LineConfig.of(event), e.getPlayer());
+
+			if(skill.isCancelled() == true) {
+				e.setCancelled(true);
+			}
+			});
+	}
+	case LEFT_CLICK_BLOCK:{
+		tag("~LeftClickVanilla").forEach(event ->{
+			SkillEvent skill = new SkillEvent(e.getClickedBlock().getLocation(), LineConfig.of(event), e.getPlayer());
+
+			if(skill.isCancelled() == true) {
+				e.setCancelled(true);
+			}
+			});
+	}
+	case RIGHT_CLICK_AIR:{
+		tag("~RightClickAirVanilla").forEach(event ->{
+			SkillEvent skill = new SkillEvent(e.getClickedBlock().getLocation(), LineConfig.of(event), e.getPlayer());
+
+			if(skill.isCancelled() == true) {
+				e.setCancelled(true);
+			}
+			});
+	}
+	default:
+		break;
+	}
+}
+	
+	@EventHandler
+	public void onEat(org.bukkit.event.player.PlayerItemConsumeEvent e) {
+		tag("~ConsumeItem").forEach(event ->{
+			SkillEvent skill = new SkillEvent(e.getPlayer().getLocation(), LineConfig.of(event), e.getPlayer(),e.getItem());
+
+			if(skill.isCancelled() == true) {
+				e.setCancelled(true);
+			}
+			});
 	}
 	
 	@EventHandler
@@ -96,23 +180,39 @@ public class eventListenerClass implements Listener{
 		switch(e.getAction()) {
 			case RIGHT_CLICK_BLOCK:{
 				tag("~RightClick").forEach(event ->{
-					new SkillEvent(e.getBlockClicked().getLocation(), LineConfig.of(event), e.getPlayer());
-				});
+					SkillEvent skill = new SkillEvent(e.getBlockClicked().getLocation(), LineConfig.of(event), e.getPlayer());
+
+					if(skill.isCancelled() == true) {
+						e.setCancelled(true);
+					}
+					});
 			}
 		case LEFT_CLICK_AIR:{
 			tag("~LeftClickAir").forEach(event ->{
-				new SkillEvent(e.getBlockClicked().getLocation(), LineConfig.of(event), e.getPlayer());
-			});
+				SkillEvent skill = new SkillEvent(e.getBlockClicked().getLocation(), LineConfig.of(event), e.getPlayer());
+
+				if(skill.isCancelled() == true) {
+					e.setCancelled(true);
+				}
+				});
 		}
 		case LEFT_CLICK_BLOCK:{
 			tag("~LeftClick").forEach(event ->{
-				new SkillEvent(e.getBlockClicked().getLocation(), LineConfig.of(event), e.getPlayer());
-			});
+				SkillEvent skill = new SkillEvent(e.getBlockClicked().getLocation(), LineConfig.of(event), e.getPlayer());
+
+				if(skill.isCancelled() == true) {
+					e.setCancelled(true);
+				}
+				});
 		}
 		case RIGHT_CLICK_AIR:{
 			tag("~RightClickAir").forEach(event ->{
-				new SkillEvent(e.getBlockClicked().getLocation(), LineConfig.of(event), e.getPlayer());
-			});
+				SkillEvent skill = new SkillEvent(e.getBlockClicked().getLocation(), LineConfig.of(event), e.getPlayer());
+
+				if(skill.isCancelled() == true) {
+					e.setCancelled(true);
+				}
+				});
 		}
 		default:
 			break;

@@ -14,6 +14,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import dev.arubik.iacs.iacs;
+import dev.arubik.iacs.managers.Metrics.CustomChart;
 
 public class AdvancedLicense {
 
@@ -83,6 +84,7 @@ public class AdvancedLicense {
 		if (vt == ValidationType.VALID) {
 			log(1, "Licensia valida!");
 			log(0, "[]==========[License-System]==========[]");
+			iacs.me.addCustomChart(new Metrics.SimplePie("LicenseValid", () -> "True"));
 			return true;
 			
 		}

@@ -1,26 +1,38 @@
 config:
+  mythic-lib: true
+  block-packets: true
+  block-mode: true
+  furniture-mode: true
   max-water: 4000
-  max-water-error: Hey solo puedes tener 4000mb = 4 cubos de agua
-  water-identifier-msg: "El agua contenida es instance:mb / cnf:config.max-water"
-  water-identifier: "croper:identifier"
-  water_farming_station: "croper:watered_farm"
   async-not-safe: false
-  sprinkler: "croper:sprinkler"
+  max-water-error: "<gradient:blue:aqua>Hey solo puedes tener 4000mb = 4 cubos de agua</gradient>"
+  water-identifier-msg: "<gradient:blue:aqua>El agua contenida es instance:mb / cnf:config.max-water player:name </gradient>"
+  water-identifier: croper:identifier
+  sprinkler: croper:sprinkler
   bone-meal: true
-  farming_station: "croper:farm"
-  fast_break:
-  - croper:tomato_stage_1
+  bone-meal-percent: 1
+  water_farming_station: croper:watered_farm
+  farming_station: croper:farm
   items:
-    "croper:water_tank": 2000
+    croper:cantimplora_1: toItem:{toItem=croper:cantimplora;water=1000}
+    croper:cantimplora_2: toItem:{toItem=croper:cantimplora_1;water=1000}
+    croper:cantimplora_3: toItem:{toItem=croper:cantimplora_2;water=1000}
+    croper:cantimplora_4: toItem:{toItem=croper:cantimplora_3;water=1000}
+    croper:cantimplora_5: toItem:{toItem=croper:cantimplora_4;water=1000}
   worlds:
-    - WORLD
+  - world
   water-take: 250
-  time-grow: 1000
-  have-data-lore:
-  - "&f"
-  - "&fData Guardada!"
+  time-grow: 650
   events:
-  - particle:{particle=WATER_SPLASH;amount=5;speed=1;offset_x=0;offset_y=0;offset_z=0;delay=0} ~OnAddWater
+  - particle:{particle=WATER_SPLASH;amount=15;speed=0.1;offset_x=0.5;offset_y=1.6;offset_z=0.5;delay=5} ~OnAddWater
+  - particle:{particle=WATER_SPLASH;amount=15;speed=0.1;offset_x=0.5;offset_y=1.5;offset_z=0.5;delay=4} ~OnAddWater
+  - particle:{particle=WATER_SPLASH;amount=15;speed=0.1;offset_x=0.5;offset_y=1.4;offset_z=0.5;delay=3} ~OnAddWater
+  - particle:{particle=WATER_SPLASH;amount=15;speed=0.1;offset_x=0.5;offset_y=1.3;offset_z=0.5;delay=2} ~OnAddWater
+  - particle:{particle=WATER_SPLASH;amount=15;speed=0.1;offset_x=0.5;offset_y=1.2;offset_z=0.5;delay=1} ~OnAddWater
+  - particle:{particle=WATER_SPLASH;amount=15;speed=0.1;offset_x=0.5;offset_y=1.1;offset_z=0.5;delay=0} ~OnAddWater
   - sound:{sound=ambient.underwater.enter;volume=2;pitch=1} ~OnAddWater
-  - actionbar:{message="Agua actual instance:mb maxima: cnf:config.max-water";shifting=true} ~RightClick
-  - command:{command="say Agua actual instance:mb maxima: cnf:config.max-water"} ~RightClick
+  - toItem:{toItem=croper:cantimplora_1;mainhand=croper:cantimplora} ~RightClickWater
+  - toItem:{toItem=croper:cantimplora_2;mainhand=croper:cantimplora_1} ~RightClickWater
+  - toItem:{toItem=croper:cantimplora_3;mainhand=croper:cantimplora_2} ~RightClickWater
+  - toItem:{toItem=croper:cantimplora_4;mainhand=croper:cantimplora_3} ~RightClickWater
+  - toItem:{toItem=croper:cantimplora_5;mainhand=croper:cantimplora_4} ~RightClickWater

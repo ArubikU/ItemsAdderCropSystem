@@ -75,18 +75,33 @@ public class CropManager {
 		}
 			saveData();
 	}
-	
+
+
+    /**
+     * This is the method called to add a instance
+     *
+     * @param  location {@link org.bukkit.Location}.
+     *         <br>The location.
+     * @param  cop {@link dev.arubik.iacs.Crops.CropInstance}.
+     *         <br>The CropInstance.
+     *
+     * @return {@link java.lang.Void}
+     */
 	public static void putInstance(Location location, CropInstance cop) {
 		if(cop.getMb() <= 0) {
 			return;
 		}
-		
-		
 		instances.put(location, cop);
 		saveData();
 
 	}
 	
+
+    /**
+     * This is the method called when save the Data
+     * 
+     * @return {@link java.lang.Void}
+     */
 	public static void saveData() {
 		File f = new File(iacs.getPlugin().getDataFolder(), "dont-touch.yml");
 		if (!f.exists()) {
@@ -115,6 +130,15 @@ public class CropManager {
 		}
 	}
 	
+
+    /**
+     * This is the getter used to get a instance from Location
+     *
+     * @param  loc {@link org.bukkit.Location}.
+     *         <br>The location.
+     *
+     * @return {@link dev.arubik.iacs.Crops.CropInstance}
+     */
 	@Nullable
 	public static CropInstance getInstance(Location loc) {
 		
@@ -143,12 +167,21 @@ public class CropManager {
 		try {
 			conf.save(f);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return ci;
 	}
 	
+	
+
+    /**
+     * This is the getter used to get all instance from a World
+     *
+     * @param  world {@link org.bukkit.World}.
+     *         <br>The world.
+     
+     * @return {@code java.util.List<org.bukkit.Location>}
+     */
 	public static List<Location> getInstances(World world) {
 		
 		File f = new File(iacs.getPlugin().getDataFolder(), "dont-touch.yml");
@@ -157,12 +190,17 @@ public class CropManager {
 		}
 		YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
 		FileConfiguration conf = (FileConfiguration) s;
+
+		List<Location> locs = new ArrayList<Location>();
 		
-		if(!iacs.getPlugin().getConfig().getStringList("config.worlds").contains(world.getName())) {
-			iacs.MiniMessage("<rainbow>[IACroper]</rainbow> <gray>El mundo de la instancias no esta habilitado en config", Bukkit.getConsoleSender(), 0);
+		if(world == null) {
+			iacs.MiniMessage("<rainbow>[IACroper]</rainbow> <gray>The world dont load correct please do /iacrop contact ", Bukkit.getConsoleSender(), 0);
 		}
 		
-		List<Location> locs = new ArrayList<Location>();
+		if(!iacs.getPlugin().getConfig().getStringList("config.worlds").contains(world.getName())) {
+			iacs.MiniMessage("<rainbow>[IACroper]</rainbow> <gray>The world is not enabled in config", Bukkit.getConsoleSender(), 0);
+			return locs;
+		}
 		
 		if(conf.getConfigurationSection("instances."+world.getName()) != null) {
 
@@ -180,6 +218,7 @@ public class CropManager {
 		return locs;
 	}
 	
+	@Deprecated
 	public HashMap<Location, CropInstance> getMap(){
 		return instances;
 	}
