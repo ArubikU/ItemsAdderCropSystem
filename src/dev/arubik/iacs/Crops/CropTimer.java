@@ -13,23 +13,20 @@ public class CropTimer {
 	int tTaskID;
 	   public static void stopTimer(int ID) {
 	        Bukkit.getScheduler().cancelTask(ID);
-	        Bukkit.getServer().getScheduler().cancelTask(ID);
+	        Bukkit.getScheduler().cancelTask(ID);
 	    }
 	   
 	   
 	   public CropTimer(int originalTime) {
 	        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-
-
-	        if(iacs.getCfg("config.block-mode", "false").toString().equalsIgnoreCase("TRUE")) {
-
+	        if(iacs.getCfg("config.block-mode", "false").toString().equalsIgnoreCase("true")) {
+	        	
+	        	
 		        forChunks fs =  new forChunks();
 		        BukkitTask ts = fs.runTaskLaterAsynchronously(iacs.getPlugin(), originalTime*20);
 		        taskID = ts.getTaskId();
-		        
 	        }
-	        if(iacs.getCfg("config.furniture-mode", "false").toString().equalsIgnoreCase("TRUE")) {
-
+	        if(iacs.getCfg("config.furniture-mode", "false").toString().equalsIgnoreCase("true")) {
 		        newForChunks fs =  new newForChunks();
 		        BukkitTask ts = fs.runTaskLaterAsynchronously(iacs.getPlugin(), originalTime*20);
 		        tTaskID = ts.getTaskId();

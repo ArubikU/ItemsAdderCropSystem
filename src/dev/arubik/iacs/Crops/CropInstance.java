@@ -169,6 +169,10 @@ public class CropInstance {
 	}
 	
 
+	public static FileConfiguration getConfig(CustomStack b) {
+		return b.getConfig();
+	}
+	
     /**
      * This is the method called to take mili buckets using api
      *

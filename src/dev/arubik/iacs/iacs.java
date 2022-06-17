@@ -117,8 +117,6 @@ public class iacs extends JavaPlugin{
 	
 	
 	public static void log(Object message) {
-
-
 		iacs.MiniMessage(" <red>ERROR</red> <gradient:red:white>[" + message.toString() + "]</gradient>", Bukkit.getConsoleSender(), 0);
 		
 	}
@@ -389,7 +387,6 @@ public class iacs extends JavaPlugin{
 	}
 	
 	public static void startTimer() {
-		//Bukkit.getConsoleSender().sendMessage(iacs.MiniMessage("&f[IACroper] Timer <RED>RESTARTED"));
 		if(plugin.getConfig().getString("config.time-grow") != null) {
 			timer =new CropTimer(plugin.getConfig().getInt("config.time-grow"));
 		}

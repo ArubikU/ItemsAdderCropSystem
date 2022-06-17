@@ -13,6 +13,7 @@ import dev.arubik.iacs.iacs;
 import dev.arubik.iacs.Crops.CropInstance;
 import dev.arubik.iacs.managers.CropManager;
 import dev.lone.itemsadder.api.CustomBlock;
+import dev.lone.itemsadder.api.CustomStack;
 
 public class forChunks extends BukkitRunnable {
 
@@ -44,13 +45,12 @@ public class forChunks extends BukkitRunnable {
 
 							CropInstance ci = CropManager.getInstance(substracted.clone());
 
+
 							if (CustomBlock.byAlreadyPlaced(seed.getBlock()) != null) {
 								if (CustomBlock.byAlreadyPlaced(seed.getBlock()).getNamespacedID().equalsIgnoreCase(iacs
 										.getCfg("config.water_farming_station", "croper:watered_farm").toString())) {
 									seed.setY(seed.getBlockY() + 1);
 								}
-								// Bukkit.getConsoleSender().sendMessage("1" +
-								// CustomBlock.byAlreadyPlaced(seed.getBlock()).getNamespacedID());
 							}
 							if (CustomBlock.byAlreadyPlaced(seed.getBlock()) != null) {
 								if (CustomBlock.byAlreadyPlaced(seed.getBlock()).getNamespacedID().equalsIgnoreCase(iacs
@@ -64,24 +64,22 @@ public class forChunks extends BukkitRunnable {
 								if (CustomBlock.byAlreadyPlaced(seed.getBlock()).getNamespacedID()
 										.contains("_stage_")) {
 
-									// Bukkit.getConsoleSender().sendMessage(ci.getAsString());
 
 									String getNamespacedID = CustomBlock.byAlreadyPlaced(seed.getBlock())
 											.getNamespacedID();
 
 									String base = getNamespacedID.replaceAll("_stage_[0-9]+", "");
-
-									// Bukkit.getConsoleSender().sendMessage(seed.getBlock()+"");
+									
 
 									int takedmb = iacs.getPlugin().getConfig().getInt("config.water-take");
-
-									FileConfiguration blockConfig = CustomBlock.getInstance(base).getConfig();
-
-									if (blockConfig.getString("items." + CustomBlock.getInstance(base).getId()
-											+ ".plant.water-take") != null) {
-										takedmb = Integer.valueOf(blockConfig.getString("items."
-												+ CustomBlock.getInstance(base).getId() + ".plant.water-take"));
+									try {
+										if (iacs.getCfg("plants."+base+".water-take", 0).toString()!="0") {
+											takedmb = Integer.valueOf(iacs.getCfg("plants."+base+".water-take", 0).toString());
+										}
+									} catch (NumberFormatException e) {
+										e.printStackTrace();
 									}
+								
 
 									if (getNamespacedID.endsWith("_stage_1")) {
 										if (CustomBlock.getInstance(base + "_stage_2") != null) {
@@ -173,7 +171,7 @@ public class forChunks extends BukkitRunnable {
 					String user = "%%__USER__%%";
 
 				} catch (Error e) {
-					// e.printStackTrace();
+		        	iacs.log(e.getMessage());
 				}
 			});
 		});
