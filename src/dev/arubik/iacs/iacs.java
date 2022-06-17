@@ -172,7 +172,7 @@ public class iacs extends JavaPlugin{
 
 
 
-        if(iacs.getCfg("config.block-mode", "false").toString().equalsIgnoreCase("TRUE")) {
+        if(iacs.getCfg("config.block-mode", "true").toString().equalsIgnoreCase("TRUE")) {
 
     		Bukkit.getPluginManager().registerEvents(new RightClickListener(), this);
 	        
