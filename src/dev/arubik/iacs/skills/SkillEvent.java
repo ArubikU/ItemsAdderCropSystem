@@ -41,29 +41,6 @@ public class SkillEvent extends org.bukkit.event.Event implements Cancellable {
 		
 		
 		if (p != null) {
-			if (lc.getString("handcontain", "null")!="null") {
-				String tag = "";
-				if (CustomStack.byItemStack(p.getInventory().getItemInMainHand()) != null) {
-					tag = CustomStack.byItemStack(p.getInventory().getItemInMainHand()).getNamespacedID().toUpperCase();
-				} else {
-					tag = p.getInventory().getItemInMainHand().getType().toString().toUpperCase();
-				}
-				if (!tag.contains(lc.getString("handcontain", "false").toUpperCase())) {
-					canceled = true;
-				}
-			}
-			if (lc.getString("handnotcontain", "null")!="null") {
-				String tag = "";
-				if (CustomStack.byItemStack(p.getInventory().getItemInMainHand()) != null) {
-					tag = CustomStack.byItemStack(p.getInventory().getItemInMainHand()).getNamespacedID().toUpperCase();
-				} else {
-					tag = p.getInventory().getItemInMainHand().getType().toString().toUpperCase();
-				}
-
-				if (tag.contains(lc.getString("handnotcontain", "false").toUpperCase())) {
-					canceled = true;
-				}
-			}
 			
 			if (lc.getString("mainhand", "false") != "false") {
 				if (CustomStack.byItemStack(p.getInventory().getItemInMainHand()) != null) {
@@ -109,34 +86,6 @@ public class SkillEvent extends org.bukkit.event.Event implements Cancellable {
 				}
 			}
 
-			if (lc.getString("BlockContain", "null")!="null") {
-				if (CustomBlock.byAlreadyPlaced(loc.getWorld().getBlockAt(loc)) != null) {
-					CustomBlock cb = CustomBlock.byAlreadyPlaced(loc.getWorld().getBlockAt(loc));
-					if (!cb.getNamespacedID().toUpperCase()
-							.contains(lc.getString("BlockContain", "false").toUpperCase())) {
-						canceled = true;
-					}
-
-				} else {
-					if (!loc.getWorld().getBlockAt(loc).getType().toString().toUpperCase()
-							.contains(lc.getString("BlockContain", "false").toUpperCase())) {
-						canceled = true;
-					}
-				}
-			}
-			if (lc.getString("BlockNOTContain", "null")!="null") {
-				if (CustomBlock.byAlreadyPlaced(loc.getWorld().getBlockAt(loc)) != null) {
-					CustomBlock cb = CustomBlock.byAlreadyPlaced(loc.getWorld().getBlockAt(loc));
-					if (cb.getNamespacedID().toUpperCase()
-							.contains(lc.getString("BlockNOTContain", "false").toUpperCase())) {
-						canceled = true;
-					}
-
-				} else if (loc.getWorld().getBlockAt(loc).getType().toString().toUpperCase()
-						.contains(lc.getString("BlockNOTContain", "false").toUpperCase())) {
-					canceled = true;
-				}
-			}
 
 			if (CustomBlock.byAlreadyPlaced(loc.getWorld().getBlockAt(loc)) != null) {
 				if (lc.getString("CustomBlock", "false") != "false") {
