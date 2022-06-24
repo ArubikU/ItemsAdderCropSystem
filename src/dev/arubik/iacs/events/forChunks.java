@@ -73,7 +73,7 @@ public class forChunks extends BukkitRunnable {
 
 									int takedmb = iacs.getPlugin().getConfig().getInt("config.water-take");
 									try {
-										if (iacs.getCfg("plants."+base+".water-take", 0).toString()!="0") {
+										if (iacs.getPlugin().getConfig().getString("plants."+base+".water-take")!=null) {
 											takedmb = Integer.valueOf(iacs.getCfg("plants."+base+".water-take", 0).toString());
 										}
 									} catch (NumberFormatException e) {
