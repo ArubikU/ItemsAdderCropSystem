@@ -19,8 +19,10 @@ public class forChunks extends BukkitRunnable {
 
 	@Override
 	public void run() {
-
 		iacs.startTimer();
+		forChunks.runWork();}
+	
+	public static void runWork() {
 
 		File f = new File(iacs.getPlugin().getDataFolder(), "config.yml");
 		if (!f.exists()) {
@@ -176,6 +178,7 @@ public class forChunks extends BukkitRunnable {
 			});
 		});
 
+	
 	}
 
 }

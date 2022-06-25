@@ -600,4 +600,14 @@ public class iacs extends JavaPlugin{
 		}
 		return temp;
 	}
+	public static FileConfiguration getConfig(String rote) {
+		File f = new File(iacs.getPlugin().getDataFolder(), rote);
+		if (!f.exists()) {
+			f.getParentFile().mkdirs();
+		}
+		YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
+		FileConfiguration data = (FileConfiguration) s;
+		
+		return s;
+	}
 }

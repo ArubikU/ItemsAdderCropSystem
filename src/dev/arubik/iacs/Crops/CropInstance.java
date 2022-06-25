@@ -223,15 +223,14 @@ public class CropInstance {
 
 		String base = cs.getNamespacedID().replaceAll("_stage_[0-9]+", "");
 
-        if(CustomStack.getInstance(base) != null) {
-            FileConfiguration datastorage = cs.getConfig();
+        if(CustomStack.getInstance(base) != null) {            
             
-            if(datastorage.getString("items."+cs.getId() + ".plant.extra-water") != null) {
-            	datat += Integer.valueOf(datastorage.getString("items."+cs.getId() + ".plant.extra-water"));
+            if(iacs.getCfgFile(base+"plant.extra-water", null, "plants.yml") != null) {
+            	datat += Integer.valueOf((String) iacs.getCfgFile(base+"plant.extra-water", null, "plants.yml"));
             }
 
-            if(datastorage.getString("items."+cs.getId() + ".plant.light-level") != null) {
-            	if(this.loc.getBlock().getLightLevel() < datastorage.getInt("items."+cs.getId() + ".plant.light-level")) {
+            if(iacs.getCfgFile(base+"plant.light-level", null, "plants.yml") != null) {
+            	if(this.loc.getBlock().getLightLevel() < Integer.valueOf((String) iacs.getCfgFile(base+"plant.light-level", null, "plants.yml"))) {
             		return;
             	}
             }
@@ -346,7 +345,7 @@ public class CropInstance {
 		}else {
 		
 		String base = cb.getNamespacedID().replaceAll("_stage_[0-9]+", "");
-        CustomStack cs = CustomStack.getInstance(base);
+		
 		if(!cb.getNamespacedID().endsWith("_stage_1")) {
 			int baselevel = 0;
 			if(this.getCurrentseed() != null) {
@@ -366,17 +365,16 @@ public class CropInstance {
  			
             if(baselevel != 0){
                 if(CustomStack.getInstance(base) != null) {
-                    FileConfiguration data = cs.getConfig();
-                    
+                    FileConfiguration data = iacs.getConfig("plants.yml");
 
-                    if(data.getString("items."+cs.getId() + ".plant.light-level") != null) {
-                    	if(this.loc.getBlock().getLightLevel() < data.getInt("items."+cs.getId() + ".plant.light-level")) {
+                    if(data.getString(base + ".plant.light-level") != null) {
+                    	if(this.loc.getBlock().getLightLevel() < data.getInt(base + ".plant.light-level")) {
                     		return;
                     	}
                     }
                     
-                    if(data.getString("items."+cs.getId()+".plant.stages-grow") != null) {
-                        String stages = data.getString("items."+cs.getId()+".plant.stages-grow");
+                    if(data.getString(base+".plant.stages-grow") != null) {
+                        String stages = data.getString(".plant.stages-grow");
                         
                         if(stages.contains("-") && stages.split("~").length == 2) {
                             int inicial = Integer.valueOf(stages.split("~")[0]);
@@ -392,7 +390,7 @@ public class CropInstance {
                             }
                         }else {
                             
-                            int rand = Integer.valueOf(data.getString("items."+cs.getId()+".plant.stages-grow")) + baselevel;
+                            int rand = Integer.valueOf(data.getString(base+".plant.stages-grow")) + baselevel;
 
                             if(rand > 14) rand = 14;
                             
@@ -406,12 +404,11 @@ public class CropInstance {
             }
 		}
 
-		
-		if(cs.getConfig().getString("items."+cs.getId()+".seed.gold") != null &&
-				cs.getConfig().getString("items."+cs.getId()+".seed.gold-percent") != null) {
-			if(CustomBlock.getInstance(cs.getConfig().getString("items."+cs.getId()+".seed.gold")) != null) {
-				CustomBlock cbs = CustomBlock.getInstance(cs.getConfig().getString("items."+cs.getId()+".seed.gold"));
-				if(iacs.isRandom(Integer.valueOf(cs.getConfig().getString("items."+cs.getId()+".seed.gold-percent")))){
+		if(iacs.getCfgFile(base+".seed.gold", null, "plants.yml") != null &&
+				iacs.getCfgFile(base+".seed.gold-percent", null, "plants.yml") != null) {
+			if(CustomBlock.getInstance(iacs.getCfgFile(base+".seed.gold", null, "plants.yml").toString()) != null) {
+				CustomBlock cbs = CustomBlock.getInstance(iacs.getCfgFile(base+".seed.gold", null, "plants.yml").toString());
+				if(iacs.isRandom(Integer.valueOf((String) iacs.getCfgFile(base+".seed.gold-percent", null, "plants.yml")))){
 					cb = cbs;
 				}
 			}
