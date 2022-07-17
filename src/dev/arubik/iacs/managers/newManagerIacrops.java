@@ -9,6 +9,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -29,6 +30,7 @@ import com.comphenix.protocol.events.PacketContainer;
 
 import dev.arubik.iacs.furnitureGet;
 import dev.arubik.iacs.iacs;
+import dev.arubik.iacs.Crops.CropInstance;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomFurniture;
 import dev.lone.itemsadder.api.CustomStack;
@@ -51,16 +53,13 @@ public class newManagerIacrops {
 	}
 
 	public class rightClickArmorStand implements Listener {
-
 	    @EventHandler
 	    public void onUseEvent(PlayerInteractEvent e) {
 	        Player player = e.getPlayer();
 	        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-	        if(e.getClickedBlock().getType().equals(Material.FARMLAND) == false)return;
-	        if(CustomStack.byItemStack(player.getInventory().getItemInMainHand()) == null) return;
+	        if(e.getClickedBlock().getType().equals(Material.FARMLAND) == false && CustomStack.byItemStack(player.getInventory().getItemInMainHand()) == null)return;
 	        String based = CustomStack.byItemStack(player.getInventory().getItemInMainHand()).getNamespacedID();
 	        Block b = e.getClickedBlock();
-
 			if (CustomFurniture.getInstance(based + "_stage_1") != null) {
 				if (b.getLocation().add(0, 1, 0).getBlock() == null
 						|| b.getLocation().add(0, 1, 0).getBlock().getType().equals(Material.AIR) ||
@@ -80,8 +79,10 @@ public class newManagerIacrops {
 		public void onPlayerClickOnFurniture(PlayerInteractEntityEvent event) {
 
 			Entity right = event.getRightClicked();
+			
+			if(!(right instanceof ArmorStand) || !(right instanceof ItemFrame))return;
 
-			if (CustomFurniture.byAlreadySpawned((ArmorStand) right) == null)
+			if (CustomFurniture.byAlreadySpawned(right) == null)
 				return;
 			
 			iacs pl = iacs.getPlugin();
@@ -92,7 +93,7 @@ public class newManagerIacrops {
 
 			PlayerInventory pi = event.getPlayer().getInventory();
 
-			CustomFurniture cb = CustomFurniture.byAlreadySpawned((ArmorStand) right);
+			CustomFurniture cb = CustomFurniture.byAlreadySpawned(right);
 
 			String base = cb.getNamespacedID().toLowerCase().replace("_stage_1", "").replace("_stage_2", "")
 					.replace("_stage_3", "").replace("_stage_4", "").replace("_stage_5", "").replace("_stage_6", "")
@@ -244,6 +245,8 @@ public class newManagerIacrops {
 								cb.remove(false);
 								furnitureGet.placeFurniture(base + "_stage_14", under.getLocation(), BlockFace.UP);
 
+								CropManager.getInstance(under.getLocation()).takeMB(0, cb);
+								
 								// ci.setCurrentseed(base + "_stage_14");
 							}
 						}

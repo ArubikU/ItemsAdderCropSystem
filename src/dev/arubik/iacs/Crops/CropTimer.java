@@ -19,16 +19,14 @@ public class CropTimer {
 	   
 	   public CropTimer(int originalTime) {
 	        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-	        if(iacs.getCfg("config.block-mode", "false").toString().equalsIgnoreCase("true")) {
-	        	
-	        	
+	        if(iacs.getCfg("config.block-mode", "true").toString().equalsIgnoreCase("true")) {
 		        forChunks fs =  new forChunks();
 		        BukkitTask ts = fs.runTaskLaterAsynchronously(iacs.getPlugin(), originalTime*20);
 		        taskID = ts.getTaskId();
 	        }
 	        if(iacs.getCfg("config.furniture-mode", "false").toString().equalsIgnoreCase("true")) {
 		        newForChunks fs =  new newForChunks();
-		        BukkitTask ts = fs.runTaskLaterAsynchronously(iacs.getPlugin(), originalTime*20);
+		        BukkitTask ts = fs.runTaskLater(iacs.getPlugin(), originalTime*20);
 		        tTaskID = ts.getTaskId();
 		        
 	        }

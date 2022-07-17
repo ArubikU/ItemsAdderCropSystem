@@ -29,7 +29,33 @@ public class CropInstance {
 	public Location loc;
 	
 	public Location seedloc;
+	public String fertilizer = "GENERIC";
+	public int time = 0;
 	
+	public Location getSeedloc() {
+		return seedloc;
+	}
+
+	public void setSeedloc(Location seedloc) {
+		this.seedloc = seedloc;
+	}
+
+	public int getTime() {
+		return time;
+	}
+
+	public void setTime(int time) {
+		this.time = time;
+	}
+
+	public String getFertilizer() {
+		return fertilizer;
+	}
+
+	public void setFertilizer(String fertilizer) {
+		this.fertilizer = fertilizer;
+	}
+
 	public Location getLoc() {
 		return loc;
 	}
@@ -416,10 +442,10 @@ public class CropInstance {
 		
 		CustomBlock tdata = cb;
 		
-		this.currentseed =  cb.getNamespacedID();
+		this.currentseed = base;
 		
 		CropInstance inthis = this;
-		inthis.currentseed =  cb.getNamespacedID();
+		inthis.currentseed = base;
 
 		if(iacs.getCfg("config.async-not-safe", false).toString().equalsIgnoreCase("TRUE")) {
 

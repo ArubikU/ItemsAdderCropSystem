@@ -22,6 +22,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -173,6 +174,21 @@ public class iacs extends JavaPlugin{
         if(iacs.getCfg("config.block-mode", "true").toString().equalsIgnoreCase("TRUE")) {
 
     		Bukkit.getPluginManager().registerEvents(new RightClickListener(), this);
+    		
+    		if(((dev.lone.itemsadder.Main)Bukkit.getPluginManager().getPlugin("ItemsAdder")).getConfig().getString("blocks.disable-REAL_WIRE")!=null) {
+    			FileConfiguration conf = ((dev.lone.itemsadder.Main)Bukkit.getPluginManager().getPlugin("ItemsAdder")).getConfig();
+    			
+    			
+    			if(!conf.getString("blocks.disable-REAL_WIRE").equalsIgnoreCase("false")) {
+    				conf.set("blocks.disable-REAL_WIRE",true);
+
+        			try {
+    					conf.save(iacs.getFile((dev.lone.itemsadder.Main)Bukkit.getPluginManager().getPlugin("ItemsAdder"), "config.yml"));
+    				} catch (IOException e) {
+    					e.printStackTrace();
+    				}
+    			}
+    		}
 	        
         }
         if(iacs.getCfg("config.furniture-mode", "false").toString().equalsIgnoreCase("TRUE")) {
@@ -391,8 +407,26 @@ public class iacs extends JavaPlugin{
 			timer =new CropTimer(plugin.getConfig().getInt("config.time-grow"));
 		}
 	}
-	
-	
+
+	public static void Message(Player pl,String s) {
+
+		BukkitAudiences au = BukkitAudiences.create(iacs.getPlugin());
+		Audience p= Audience.empty();
+		p = au.player(pl);
+		MiniMessage mm = MiniMessage.get();
+		Component parsed = mm.deserialize(s.toString());
+		iacs.sendMessage(p, parsed, 0);
+	}
+
+	public static void Message(CommandSender pl,String s) {
+
+		BukkitAudiences au = BukkitAudiences.create(iacs.getPlugin());
+		Audience p= Audience.empty();
+		p = au.sender(pl);
+		MiniMessage mm = MiniMessage.get();
+		Component parsed = mm.deserialize(s.toString());
+		iacs.sendMessage(p, parsed, 0);
+	}
 	
 	public static void MiniMessage(Object s,Player player, int id /* 0: message 1: actionbar*/) {
 		BukkitAudiences au = BukkitAudiences.create(iacs.getPlugin());
@@ -567,6 +601,15 @@ public class iacs extends JavaPlugin{
 		return temp;
 	}
 	
+	public static File getFile(Plugin p,String rute) {
+
+		File f = new File(p.getDataFolder(), rute);
+		if (!f.exists()) {
+			f.getParentFile().mkdirs();
+		}
+		
+		return f;
+	}
 
 	public static Object getCfgFile(String rute, Object temp,String rote) {
 		File f = new File(iacs.getPlugin().getDataFolder(), rote);

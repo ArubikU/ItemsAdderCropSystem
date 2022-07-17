@@ -46,7 +46,7 @@ public class newCropInstance {
 		this.name = block;
 		this.block = CustomFurniture.getInstance(block);
 	}
-	public newCropInstance (ArmorStand e) {
+	public newCropInstance (org.bukkit.entity.Entity e) {
 		if(CustomFurniture.byAlreadySpawned(e) != null) {
 			this.loc = CustomFurniture.byAlreadySpawned(e).getArmorstand().getLocation();
 			this.name = CustomFurniture.byAlreadySpawned(e).getNamespacedID();

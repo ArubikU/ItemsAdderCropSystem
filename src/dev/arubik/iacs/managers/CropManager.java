@@ -47,9 +47,15 @@ public class CropManager {
 								int mb = conf.getInt("instances."+world+"."+cord+".mb");
 								
 								CropInstance ci = new CropInstance(templ, mb);
-								
+
 								if(conf.getString("instances."+world+"."+cord+".seed") != null) {
 									ci.setCurrentseed(conf.getString("instances."+world+"."+cord+".seed"));
+								}
+								if(conf.getString("instances."+world+"."+cord+".fert") != null) {
+									ci.setFertilizer(conf.getString("instances."+world+"."+cord+".fert"));
+								}
+								if(conf.getString("instances."+world+"."+cord+".time") != null) {
+									ci.setTime(conf.getInt("instances."+world+"."+cord+".time"));
 								}
 								
 								if(mb <= 0) {
@@ -114,8 +120,10 @@ public class CropManager {
 		
 		for(Location loc : instances.keySet()) {
 			if(instances.get(loc) != null) {
-			data.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".mb", instances.get(loc).getMb());
-			data.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".seed", instances.get(loc).getCurrentseed());
+				data.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".mb", instances.get(loc).getMb());
+				data.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".seed", instances.get(loc).getCurrentseed());
+				data.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".time", instances.get(loc).getFertilizer());
+				data.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".fert", instances.get(loc).getTime());
 			}
 			}
 		}else {
@@ -155,13 +163,17 @@ public class CropManager {
 		
 
 		CropInstance ci = new CropInstance(loc, mb);
-		if(conf.getString("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".mb") == null || mb < 0) {
+		if(conf.getString("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".mb") == null) {
 			ci.setMb(0);
 		}
-		
-
-		if(conf.getString("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".seed") != null || mb < 0) {
+		if(conf.getString("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".seed") != null) {
 			ci.setCurrentseed(conf.getString("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".seed"));
+		}
+		if(conf.getString("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".fert") != null) {
+			ci.setFertilizer(conf.getString("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".fert"));
+		}
+		if(conf.getString("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".time") != null ) {
+			ci.setTime(conf.getInt("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".time"));
 		}
 		
 		try {
@@ -253,12 +265,7 @@ public class CropManager {
 		}
 		YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
 		FileConfiguration conf = (FileConfiguration) s;
-
-		conf.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+ ".mb", null);
-		conf.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".seed", null);
 		conf.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ(), null);
-		conf.set("instances."+loc.clone().subtract(0, 1, 0).getWorld().getName()+"."+loc.clone().subtract(0, 1, 0).getBlockX()+"~"+loc.clone().subtract(0, 1, 0).getBlockY()+"~"+loc.clone().subtract(0, 1, 0).getBlockZ()+ ".mb", null);
-		conf.set("instances."+loc.clone().subtract(0, 1, 0).getWorld().getName()+"."+loc.clone().subtract(0, 1, 0).getBlockX()+"~"+loc.clone().subtract(0, 1, 0).getBlockY()+"~"+loc.clone().subtract(0, 1, 0).getBlockZ()+".seed", null);
 		conf.set("instances."+loc.clone().subtract(0, 1, 0).getWorld().getName()+"."+loc.clone().subtract(0, 1, 0).getBlockX()+"~"+loc.clone().subtract(0, 1, 0).getBlockY()+"~"+loc.clone().subtract(0, 1, 0).getBlockZ(), null);
 		
 		
@@ -278,11 +285,7 @@ public class CropManager {
 		}
 		YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
 		FileConfiguration conf = (FileConfiguration) s;
-		conf.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+ ".mb", null);
-		conf.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".seed", null);
 		conf.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ(), null);
-		conf.set("instances."+loc.clone().subtract(0, 1, 0).getWorld().getName()+"."+loc.clone().subtract(0, 1, 0).getBlockX()+"~"+loc.clone().subtract(0, 1, 0).getBlockY()+"~"+loc.clone().subtract(0, 1, 0).getBlockZ()+ ".mb", null);
-		conf.set("instances."+loc.clone().subtract(0, 1, 0).getWorld().getName()+"."+loc.clone().subtract(0, 1, 0).getBlockX()+"~"+loc.clone().subtract(0, 1, 0).getBlockY()+"~"+loc.clone().subtract(0, 1, 0).getBlockZ()+".seed", null);
 		conf.set("instances."+loc.clone().subtract(0, 1, 0).getWorld().getName()+"."+loc.clone().subtract(0, 1, 0).getBlockX()+"~"+loc.clone().subtract(0, 1, 0).getBlockY()+"~"+loc.clone().subtract(0, 1, 0).getBlockZ(), null);
 		try {
 			conf.save(f);

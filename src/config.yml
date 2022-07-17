@@ -2,7 +2,7 @@ config:
   mythic-lib: true
   block-packets: true
   block-mode: true
-  furniture-mode: true
+  furniture-mode: false
   max-water: 4000
   async-not-safe: false
   max-water-error: "<gradient:blue:aqua>Hey solo puedes tener 4000mb = 4 cubos de agua</gradient>"
