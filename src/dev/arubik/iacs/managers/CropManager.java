@@ -122,8 +122,8 @@ public class CropManager {
 			if(instances.get(loc) != null) {
 				data.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".mb", instances.get(loc).getMb());
 				data.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".seed", instances.get(loc).getCurrentseed());
-				data.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".time", instances.get(loc).getFertilizer());
-				data.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".fert", instances.get(loc).getTime());
+				data.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".time", instances.get(loc).getTime());
+				data.set("instances."+loc.getWorld().getName()+"."+loc.getBlockX()+"~"+loc.getBlockY()+"~"+loc.getBlockZ()+".fert", instances.get(loc).getFertilizer());
 			}
 			}
 		}else {

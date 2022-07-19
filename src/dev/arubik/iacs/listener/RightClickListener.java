@@ -26,6 +26,34 @@ import io.lumine.mythic.utils.config.LineConfig;
 
 public class RightClickListener implements Listener {
 
+
+	@EventHandler
+	public void onFertilize(CustomBlockInteractEvent e) {
+		if (e.getPlayer().getInventory().getItemInMainHand() == null || e.getItem() == null
+				|| e.getAction() != Action.RIGHT_CLICK_BLOCK) {
+			return;
+		}
+		iacs pl = iacs.getPlugin();
+		Block b = e.getBlockClicked();
+		
+		if(CropManager.contains(b.getLocation())) {
+			CropInstance ci = CropManager.getInstance(b.getLocation());
+			if(ci.addableFertilizer(e.getPlayer().getInventory().getItemInMainHand())) {
+				ItemStack di = ci.addFertilizer(e.getPlayer().getInventory().getItemInMainHand());
+				if(di != e.getPlayer().getInventory().getItemInMainHand()) {
+					e.getPlayer().sendMessage("ADA");
+					e.getPlayer().getInventory().setItemInMainHand(di);
+				}
+			}else {
+				e.getPlayer().sendMessage("ASA");
+			}
+			return;
+		
+		}
+		
+	}
+	
+	
 	@SuppressWarnings("static-access")
 	@EventHandler
 	public void onRightClickWithWater(CustomBlockInteractEvent e) {
@@ -362,6 +390,7 @@ public class RightClickListener implements Listener {
 									CustomBlock.remove(b.getLocation());
 									CustomBlock.getInstance(base + "_stage_7").place(b.getLocation());
 									ci.setCurrentseed(base + "_stage_7");
+									
 								}
 							}
 						}
@@ -600,10 +629,23 @@ public class RightClickListener implements Listener {
 
 							if (iacs.getPlugin().getConfig().getString("config.water-identifier")
 									.equalsIgnoreCase(CustomStack.byItemStack(hand).getNamespacedID())) {
-								iacs.MiniMessage(
-										iacs.parsePlaceholder(e.getPlayer(), e.getBlockClicked().getLocation(), iacs.getPlugin().getConfig().getString("config.water-identifier-msg"))
-										, e.getPlayer()
-										, 0);
+								
+								if(iacs.getPlugin().getConfig().getString("config.water-identifier-msg").split("<br>").length >0) {
+									for(String d : iacs.getPlugin().getConfig().getString("config.water-identifier-msg").split("<br>")) {
+
+										iacs.MiniMessage(
+												iacs.parsePlaceholder(e.getPlayer(), e.getBlockClicked().getLocation(), d)
+												, e.getPlayer()
+												, 0);
+									};
+								}else {
+
+									iacs.MiniMessage(
+											iacs.parsePlaceholder(e.getPlayer(), e.getBlockClicked().getLocation(), iacs.getPlugin().getConfig().getString("config.water-identifier-msg"))
+											, e.getPlayer()
+											, 0);
+								}
+								
 							}
 
 							PlayerInventory pi = e.getPlayer().getInventory();

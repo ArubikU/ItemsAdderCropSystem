@@ -34,7 +34,7 @@ public class forChunks extends BukkitRunnable {
 		iacs.getPlugin().getConfig().getStringList("config.worlds").forEach(world -> {
 
 			CropManager.getInstances(Bukkit.getWorld(world)).forEach(location -> {
-				try {
+				try {if(location.getChunk().isLoaded()) {
 					Location substracted = location.clone().subtract(0, 1, 0);
 
 					Location seed = substracted;
@@ -171,7 +171,7 @@ public class forChunks extends BukkitRunnable {
 					}
 
 					String user = "%%__USER__%%";
-
+				}
 				} catch (Error e) {
 		        	iacs.log(e.getMessage());
 				}

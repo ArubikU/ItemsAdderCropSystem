@@ -138,14 +138,10 @@ public class iacs extends JavaPlugin{
 
 		listenerProtocol.onEnable();
 		
-		new targetBlock();
-		
 
 		if(iacs.getCfg("config.async-not-safe", false).toString().equalsIgnoreCase("TRUE")) {
 			iacs.MiniMessage("<rainbow>[IACROPER] AsynMode Enabled</rainbow>", Bukkit.getConsoleSender(), 0);
 		}
-		
-		
 		
 		plugin.getCommand("iacrop").setExecutor(new TabExecutor());
 		plugin.getCommand("iacrop").setTabCompleter(new TabExecutor());
@@ -193,7 +189,6 @@ public class iacs extends JavaPlugin{
         }
         if(iacs.getCfg("config.furniture-mode", "false").toString().equalsIgnoreCase("TRUE")) {
         	new newManagerIacrops();
-	        
         }
 		
 		Bukkit.getPluginManager().registerEvents(new onBreakListener(), this);
@@ -373,6 +368,12 @@ public class iacs extends JavaPlugin{
 				}
 				if(returned.contains("instance:location")) {
 					returned = returned.replace("instance:location", CropManager.getInstance(loc).getLoc() + "");
+				}
+				if(returned.contains("instance:fertilizer")) {
+					returned = returned.replace("instance:fertilizer", CropManager.getInstance(loc).ifnofertilizer());
+				}
+				if(returned.contains("instance:fertilizer-amount")) {
+					returned = returned.replace("instance:fertilizer-amount", CropManager.getInstance(loc).getFertilizer().split(" ~ ")[1] + "");
 				}
 		}
 

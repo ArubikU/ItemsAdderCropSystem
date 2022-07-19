@@ -23,6 +23,13 @@ public class onBreakListener implements Listener{
 		if(CropManager.contains(e.getBlock().getLocation())
 				|| e.getNamespacedID().equalsIgnoreCase((String) iacs.getCfg("config.farming_station", "croper:farm"))
 				|| e.getNamespacedID().equalsIgnoreCase((String) iacs.getCfg("config.water_farming_station", "croper:watered_farm"))) {
+			
+			if(CropManager.contains(e.getBlock().getLocation())) {
+				if(CropManager.getInstance(e.getBlock().getLocation()).getAllFertilizer().getType() != Material.BARRIER) {
+					e.getBlock().getLocation().getWorld().dropItem(e.getBlock().getLocation(), CropManager.getInstance(e.getBlock().getLocation()).getAllFertilizer());
+				}
+			}
+			
 			CropManager.removeInstance(e.getBlock().getLocation());
 		}
 		
@@ -48,8 +55,6 @@ public class onBreakListener implements Listener{
 				}catch(NullPointerException ee) {
 					iacs.log(ee);
 				}
-					
-					
 					CustomBlock.remove(e.getBlock().getLocation());
 					e.setCancelled(true);
 				}
