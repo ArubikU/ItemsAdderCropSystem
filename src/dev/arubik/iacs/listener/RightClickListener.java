@@ -30,25 +30,24 @@ public class RightClickListener implements Listener {
 	@EventHandler
 	public void onFertilize(CustomBlockInteractEvent e) {
 		if (e.getPlayer().getInventory().getItemInMainHand() == null || e.getItem() == null
-				|| e.getAction() != Action.RIGHT_CLICK_BLOCK) {
+				) {
 			return;
 		}
-		iacs pl = iacs.getPlugin();
 		Block b = e.getBlockClicked();
+
 		
-		if(CropManager.contains(b.getLocation())) {
-			CropInstance ci = CropManager.getInstance(b.getLocation());
-			if(ci.addableFertilizer(e.getPlayer().getInventory().getItemInMainHand())) {
-				ItemStack di = ci.addFertilizer(e.getPlayer().getInventory().getItemInMainHand());
-				if(di != e.getPlayer().getInventory().getItemInMainHand()) {
-					e.getPlayer().sendMessage("ADA");
-					e.getPlayer().getInventory().setItemInMainHand(di);
+		if(e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+
+			if(CropManager.contains(b.getLocation())) {
+				CropInstance ci = CropManager.getInstance(b.getLocation());
+				if(ci.addableFertilizer(e.getPlayer().getInventory().getItemInMainHand())) {
+					ItemStack di = ci.addFertilizer(e.getPlayer().getInventory().getItemInMainHand());
+					if(di != e.getPlayer().getInventory().getItemInMainHand()) {
+						e.getPlayer().getInventory().setItemInMainHand(di);
+					}
 				}
-			}else {
-				e.getPlayer().sendMessage("ASA");
+				return;
 			}
-			return;
-		
 		}
 		
 	}

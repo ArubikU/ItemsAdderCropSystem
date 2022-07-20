@@ -32,13 +32,13 @@ public class CropInstance {
 			return false;
 		} else {
 			int a = Integer.valueOf(this.fertilizer.split(" ~ ")[1]) - 1;
-			if (a < 0) {
+			if (a <= 0) {
 				this.setFertilizer("GENERIC ~ 1");
-				CropManager.putInstance(loc.getWorld().getBlockAt(loc).getLocation(), this);
+				CropManager.putInstance(loc, this);
 				return true;
 			}
 			this.setFertilizer(this.fertilizer.split(" ~ ")[0] + " ~ " + a);
-			CropManager.putInstance(loc.getWorld().getBlockAt(loc).getLocation(), this);
+			CropManager.putInstance(loc, this);
 			return true;
 		}
 	}
@@ -334,19 +334,22 @@ public class CropInstance {
 		String base = cs.getNamespacedID().replaceAll("_stage_[0-9]+", "");
 
 		if (CustomStack.getInstance(base) != null) {
-
-			if (iacs.getCfgFile(base + "plant.extra-water", null, "plants.yml") != null) {
-				datat += Integer.valueOf((String) iacs.getCfgFile(base + "plant.extra-water", null, "plants.yml"));
+			if (iacs.getCfgFile(base + ".plant.extra-water", null, "plants.yml") != null) {
+				datat += Integer.valueOf((String) iacs.getCfgFile(base + ".plant.extra-water", null, "plants.yml"));
+			}
+			if (iacs.getCfgFile(base + ".plant.water-cost", null, "plants.yml") != null) {
+				datat = Integer.valueOf((String) iacs.getCfgFile(base + ".plant.water-cost", null, "plants.yml"));
 			}
 
-			if (iacs.getCfgFile(base + "plant.light-level", null, "plants.yml") != null) {
+			if (iacs.getCfgFile(base + ".plant.light-level", null, "plants.yml") != null) {
 				if (this.loc.getBlock().getLightLevel() < Integer
-						.valueOf((String) iacs.getCfgFile(base + "plant.light-level", null, "plants.yml"))) {
+						.valueOf((String) iacs.getCfgFile(base + ".plant.light-level", null, "plants.yml"))) {
 					return;
 				}
 			}
 		}
 
+		datat = datat - FertilizerManager.fertilizerRetain(this.fertilizer, datat);
 		Operation op = Operation.REST;
 		for (int d = -2; d <= 2; d++) {
 			for (int e = -2; e <= 2; e++) {
@@ -400,8 +403,10 @@ public class CropInstance {
 
 			}
 		}
-		datat -= FertilizerManager.fertilizerRetain(this.fertilizer, temp);
 
+
+		if (datat < 0)
+			datat = 0;
 		try {
 
 			ModifyMB mmb = iacs.castModifyMB(loc.getBlock(), null, op, datat, this);
@@ -417,7 +422,8 @@ public class CropInstance {
 
 		if (mb <= 0) {
 			CropManager.removeInstanceW(loc);
-			iacs.sendBlock(CustomBlock.getInstance((String) iacs.getCfg("farming_station", "croper:farm")), loc, 100);
+			iacs.sendBlock(CustomBlock.getInstance((String) iacs.getCfg("config.farming_station", "croper:farm")), loc,
+					100);
 
 		} else {
 			CropManager.putInstance(this.getLoc(), this);
@@ -447,11 +453,37 @@ public class CropInstance {
 
 	public void addSeed(CustomBlock cb, Boolean bonemeal) {
 
-		if (bonemeal) {
-			if (cb.getConfig().getString("items." + cb.getId()) != null) {
+		this.takeFertilizer();
+		
+		String base = cb.getNamespacedID().replaceAll("_stage_[0-9]+", "");
+		if (!cb.getNamespacedID().endsWith("_stage_1")) {
+			int baselevel = 0;
+			if (this.getCurrentseed() != null) {
+				if (this.getCurrentseed().endsWith("_stage_2"))
+					baselevel = 2;
+				if (this.getCurrentseed().endsWith("_stage_3"))
+					baselevel = 3;
+				if (this.getCurrentseed().endsWith("_stage_4"))
+					baselevel = 4;
+				if (this.getCurrentseed().endsWith("_stage_5"))
+					baselevel = 5;
+				if (this.getCurrentseed().endsWith("_stage_6"))
+					baselevel = 6;
+				if (this.getCurrentseed().endsWith("_stage_7"))
+					baselevel = 7;
+				if (this.getCurrentseed().endsWith("_stage_8"))
+					baselevel = 8;
+				if (this.getCurrentseed().endsWith("_stage_9"))
+					baselevel = 9;
+				if (this.getCurrentseed().endsWith("_stage_10"))
+					baselevel = 10;
+				if (this.getCurrentseed().endsWith("_stage_11"))
+					baselevel = 11;
+				if (this.getCurrentseed().endsWith("_stage_12"))
+					baselevel = 12;
+				if (this.getCurrentseed().endsWith("_stage_13"))
+					baselevel = 13;
 			}
-		} else {
-			String base = cb.getNamespacedID().replaceAll("_stage_[0-9]+", "");
 			if (iacs.getCfg("config.time", false).toString().equalsIgnoreCase("true")) {
 				if (this.getTime() <= 0) {
 					if (iacs.getCfgFile(base + ".time-growth", null, "plants.yml") != null) {
@@ -462,188 +494,23 @@ public class CropInstance {
 						this.setTime(0);
 					}
 				} else {
-					this.setTime(this.getTime() - FertilizerManager.fertilizerTimeout(fertilizer,
-							Integer.valueOf(iacs.getCfg("config.time-grow", 650).toString())));
+					this.setTime(this.getTime() - FertilizerManager.fertilizerTimeout(fertilizer, Integer.valueOf(
+							iacs.getCfg("config.time-grow", iacs.getCfg("config.time-growth", 650)).toString())));
 					if (this.getTime() > 0) {
 						return;
 					}
 				}
 			}
 
-			if (!cb.getNamespacedID().endsWith("_stage_1")) {
-				int baselevel = 0;
-				if (this.getCurrentseed() != null) {
-					if (this.getCurrentseed().endsWith("_stage_2"))
-						baselevel = 2;
-					if (this.getCurrentseed().endsWith("_stage_3"))
-						baselevel = 3;
-					if (this.getCurrentseed().endsWith("_stage_4"))
-						baselevel = 4;
-					if (this.getCurrentseed().endsWith("_stage_5"))
-						baselevel = 5;
-					if (this.getCurrentseed().endsWith("_stage_6"))
-						baselevel = 6;
-					if (this.getCurrentseed().endsWith("_stage_7"))
-						baselevel = 7;
-					if (this.getCurrentseed().endsWith("_stage_8"))
-						baselevel = 8;
-					if (this.getCurrentseed().endsWith("_stage_9"))
-						baselevel = 9;
-					if (this.getCurrentseed().endsWith("_stage_10"))
-						baselevel = 10;
-					if (this.getCurrentseed().endsWith("_stage_11"))
-						baselevel = 11;
-					if (this.getCurrentseed().endsWith("_stage_12"))
-						baselevel = 12;
-					if (this.getCurrentseed().endsWith("_stage_13"))
-						baselevel = 13;
-				} else {
-					baselevel = 0;
-				}
-
-				if (baselevel != 0) {
-					if (CustomStack.getInstance(base) != null) {
-						if (iacs.getCfgFile(base + ".plant.light-level", null, "plants.yml") != null) {
-							if (this.loc.getBlock().getLightLevel() < Integer.valueOf(
-									iacs.getCfgFile(base + ".plant.light-level", null, "plants.yml").toString())) {
-								return;
-							}
-						}
-						if (iacs.getCfgFile(base + ".plant.stages-grow", null, "plants.yml") != null) {
-							String stages = iacs.getCfgFile(base + ".plant.stages-grow", null, "plants.yml").toString();
-
-							if (stages.contains("-") && stages.split("~").length == 2) {
-								int inicial = Integer.valueOf(stages.split("~")[0]);
-								int end = Integer.valueOf(stages.split("~")[1]);
-
-								int rand = getRandomNumber(inicial, end) + baselevel;
-
-								if (rand > 14)
-									rand = 14;
-
-								if (CustomBlock.getInstance(base + "_stage_" + rand) != null) {
-									this.currentseed = CustomBlock.getInstance(base + "_stage_" + rand)
-											.getNamespacedID();
-									iacs.sendBlock(CustomBlock.getInstance(base + "_stage_" + rand), seedloc, 100);
-								}
-							} else {
-								int rand = Integer.valueOf(
-										iacs.getCfgFile(base + ".plant.stages-grow", null, "plants.yml").toString())
-										+ baselevel;
-								if (rand > 14)
-									rand = 14;
-								if (CustomBlock.getInstance(base + "_stage_" + rand) != null) {
-									this.currentseed = CustomBlock.getInstance(base + "_stage_" + rand)
-											.getNamespacedID();
-									iacs.sendBlock(CustomBlock.getInstance(base + "_stage_" + rand), seedloc, 100);
-								}
-							}
-						}
-					}
-				}
-			}
-
-			if (iacs.getCfgFile(base + ".seed.gold", null, "plants.yml") != null
-					&& iacs.getCfgFile(base + ".seed.gold-percent", null, "plants.yml") != null) {
-				if (CustomBlock
-						.getInstance(iacs.getCfgFile(base + ".seed.gold", null, "plants.yml").toString()) != null) {
-					CustomBlock cbs = CustomBlock
-							.getInstance(iacs.getCfgFile(base + ".seed.gold", null, "plants.yml").toString());
-					if (iacs.isRandom(FertilizerManager.fertilizerGold(this.fertilizer,
-							(int) iacs.getCfgFile(base + ".seed.gold-percent", null, "plants.yml")))) {
-						cb = cbs;
-					}
-				}
-			}
-
-			this.takeFertilizer();
-
-			CustomBlock tdata = cb;
-			this.currentseed = base;
-
-			CropInstance inthis = this;
-			inthis.currentseed = base;
-
-			if (iacs.getCfg("config.async-not-safe", false).toString().equalsIgnoreCase("TRUE")) {
-
-				BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-				scheduler.runTaskAsynchronously(iacs.getPlugin(), new Runnable() {
-					@Override
-					public void run() {
-						iacs.sendBlock(tdata, seedloc, 150);
-
-						if (!iacs.getCfg("config.bonemeal-effect", true).toString().equalsIgnoreCase("false")) {
-							loc.getWorld().playEffect(seedloc, Effect.BONE_MEAL_USE, 5);
-						}
-						CropManager.putInstance(loc.getWorld().getBlockAt(loc).getLocation(), inthis);
-					}
-				});
-			} else {
-				iacs.sendBlock(cb, seedloc, 150);
-				if (!iacs.getCfg("config.bonemeal-effect", true).toString().equalsIgnoreCase("false")) {
-					loc.getWorld().playEffect(seedloc, Effect.BONE_MEAL_USE, 5);
-				}
-				CropManager.putInstance(loc.getWorld().getBlockAt(loc).getLocation(), this);
-			}
-		}
-
-	}
-
-	public void growth() {
-
-		if (CustomBlock.byAlreadyPlaced(this.getLoc().clone().add(0, 1, 0).getBlock()) == null)
-			return;
-
-		String base = this.getCurrentseed().replaceAll("_stage_[0-9]+", "");
-		String instance = CustomBlock.byAlreadyPlaced(this.getLoc().clone().add(0, 1, 0).getBlock()).getNamespacedID();
-
-		int baselevel = 0;
-		if (instance != null) {
-			if (instance.endsWith("_stage_2"))
-				baselevel = 2;
-			if (instance.endsWith("_stage_3"))
-				baselevel = 3;
-			if (instance.endsWith("_stage_4"))
-				baselevel = 4;
-			if (instance.endsWith("_stage_5"))
-				baselevel = 5;
-			if (instance.endsWith("_stage_6"))
-				baselevel = 6;
-			if (instance.endsWith("_stage_7"))
-				baselevel = 7;
-			if (instance.endsWith("_stage_8"))
-				baselevel = 8;
-			if (instance.endsWith("_stage_9"))
-				baselevel = 9;
-			if (instance.endsWith("_stage_10"))
-				baselevel = 10;
-			if (instance.endsWith("_stage_11"))
-				baselevel = 11;
-			if (instance.endsWith("_stage_12"))
-				baselevel = 12;
-			if (instance.endsWith("_stage_13"))
-				baselevel = 13;
-		} else {
-			baselevel = 0;
-		}
-
-		CustomBlock cb = CustomBlock.getInstance(base + "_stage_" + baselevel);
-
-		if (cb == null)
-			return;
-
-		if (baselevel != 0) {
 			if (CustomStack.getInstance(base) != null) {
-				FileConfiguration data = iacs.getConfig("plants.yml");
-
-				if (data.getString(base + ".plant.light-level") != null) {
-					if (this.loc.getBlock().getLightLevel() < data.getInt(base + ".plant.light-level")) {
+				if (iacs.getCfgFile(base + ".plant.light-level", null, "plants.yml") != null) {
+					if (this.loc.getBlock().getLightLevel() < Integer
+							.valueOf(iacs.getCfgFile(base + ".plant.light-level", null, "plants.yml").toString())) {
 						return;
 					}
 				}
-
-				if (data.getString(base + ".plant.stages-grow") != null) {
-					String stages = data.getString(".plant.stages-grow");
+				if (iacs.getCfgFile(base + ".plant.stages-grow", null, "plants.yml") != null) {
+					String stages = iacs.getCfgFile(base + ".plant.stages-grow", null, "plants.yml").toString();
 
 					if (stages.contains("-") && stages.split("~").length == 2) {
 						int inicial = Integer.valueOf(stages.split("~")[0]);
@@ -659,12 +526,11 @@ public class CropInstance {
 							iacs.sendBlock(CustomBlock.getInstance(base + "_stage_" + rand), seedloc, 100);
 						}
 					} else {
-
-						int rand = Integer.valueOf(data.getString(base + ".plant.stages-grow")) + baselevel;
-
+						int rand = Integer
+								.valueOf(iacs.getCfgFile(base + ".plant.stages-grow", null, "plants.yml").toString())
+								+ baselevel;
 						if (rand > 14)
 							rand = 14;
-
 						if (CustomBlock.getInstance(base + "_stage_" + rand) != null) {
 							this.currentseed = CustomBlock.getInstance(base + "_stage_" + rand).getNamespacedID();
 							iacs.sendBlock(CustomBlock.getInstance(base + "_stage_" + rand), seedloc, 100);
@@ -673,20 +539,20 @@ public class CropInstance {
 				}
 			}
 		}
+
 		if (iacs.getCfgFile(base + ".seed.gold", null, "plants.yml") != null
 				&& iacs.getCfgFile(base + ".seed.gold-percent", null, "plants.yml") != null) {
 			if (CustomBlock.getInstance(iacs.getCfgFile(base + ".seed.gold", null, "plants.yml").toString()) != null) {
 				CustomBlock cbs = CustomBlock
 						.getInstance(iacs.getCfgFile(base + ".seed.gold", null, "plants.yml").toString());
-				if (iacs.isRandom(
-						Integer.valueOf((String) iacs.getCfgFile(base + ".seed.gold-percent", null, "plants.yml")))) {
+				if (iacs.isRandom(FertilizerManager.fertilizerGold(this.fertilizer,
+						(int) iacs.getCfgFile(base + ".seed.gold-percent", null, "plants.yml")))) {
 					cb = cbs;
 				}
 			}
 		}
 
 		CustomBlock tdata = cb;
-
 		this.currentseed = base;
 
 		CropInstance inthis = this;
@@ -715,4 +581,5 @@ public class CropInstance {
 		}
 
 	}
+
 }

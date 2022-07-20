@@ -623,7 +623,6 @@ public class iacs extends JavaPlugin{
 		if(data.get(rute) == null) {
 			return temp;
 		}
-		
 		if(temp instanceof Boolean) {
 			return data.getBoolean(rute);
 		}
