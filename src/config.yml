@@ -1,8 +1,11 @@
 config:
+  time: true
+  no-fertilizer-msg: Ninguno!
+  fertilizer:
+    max: 64
   mythic-lib: true
   block-packets: true
   block-mode: true
-  furniture-mode: false
   max-water: 4000
   async-not-safe: false
   max-water-error: "<gradient:blue:aqua>Hey solo puedes tener 4000mb = 4 cubos de agua</gradient>"
@@ -13,11 +16,9 @@ config:
   bone-meal-percent: 1
   water_farming_station: croper:watered_farm
   farming_station: croper:farm
-  
   water-default: true
   WATER_BUCKET: 1000
   WATER_BOTTLE: 250
-  
   items:
     croper:cantimplora_1: toItem:{toItem=croper:cantimplora;water=1000}
     croper:cantimplora_2: toItem:{toItem=croper:cantimplora_1;water=1000}

@@ -4,9 +4,12 @@ import java.io.File;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import dev.arubik.iacs.furnitureGet;
 import dev.arubik.iacs.iacs;
@@ -15,8 +18,13 @@ import dev.arubik.iacs.managers.CropManager;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
 
-public class forChunks extends BukkitRunnable {
+public class forChunks implements Runnable {
 
+	public BukkitTask runTaskLaterAsynchronously(Plugin p,Long delay) throws IllegalArgumentException, IllegalStateException {
+		BukkitTask task = Bukkit.getScheduler().runTaskLaterAsynchronously(p, this, delay);
+		return task;
+	}
+	
 	@Override
 	public void run() {
 		iacs.startTimer();
@@ -24,16 +32,10 @@ public class forChunks extends BukkitRunnable {
 	
 	public static void runWork() {
 
-		File f = new File(iacs.getPlugin().getDataFolder(), "config.yml");
-		if (!f.exists()) {
-			f.getParentFile().mkdirs();
-		}
-		YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
-		FileConfiguration conf = (FileConfiguration) s;
-
 		iacs.getPlugin().getConfig().getStringList("config.worlds").forEach(world -> {
-
-			CropManager.getInstances(Bukkit.getWorld(world)).forEach(location -> {
+			World w = Bukkit.getWorld(world);
+			if(w!=null) {
+			CropManager.getInstances(w).forEach(location -> {
 				try {if(location.getChunk().isLoaded()) {
 					Location substracted = location.clone().subtract(0, 1, 0);
 
@@ -81,7 +83,8 @@ public class forChunks extends BukkitRunnable {
 									} catch (NumberFormatException e) {
 										e.printStackTrace();
 									}
-								
+							    	
+
 
 									if (getNamespacedID.endsWith("_stage_1")) {
 										if (CustomBlock.getInstance(base + "_stage_2") != null) {
@@ -161,6 +164,7 @@ public class forChunks extends BukkitRunnable {
 											ci.takeMB(takedmb, CustomBlock.getInstance(base + "_stage_14"));
 										}
 									}
+							    	
 								}
 								// CropManager.putInstance(Bukkit.getWorld(world).getBlockAt(location).getLocation(),
 								// ci);
@@ -175,7 +179,7 @@ public class forChunks extends BukkitRunnable {
 				} catch (Error e) {
 		        	iacs.log(e.getMessage());
 				}
-			});
+			});}
 		});
 
 	

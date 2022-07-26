@@ -49,7 +49,6 @@ public class TabExecutor implements org.bukkit.command.TabExecutor{
 		try {
 			
 			if(args[0].toUpperCase().equalsIgnoreCase("reload")){
-					iacs.getPlugin().registrarConfig();
 					iacs.getPlugin().reloadConfig();
 
 					String user = "%%__USER__%%";
@@ -71,6 +70,10 @@ public class TabExecutor implements org.bukkit.command.TabExecutor{
 				dataf.save(ff);
 				iacs.getPlugin().registrarConfig();
 				iacs.getPlugin().reloadConfig();
+				iacs.getPlugin().registrarPlants();
+				iacs.getPlugin().reloadPlants();
+				iacs.getPlugin().registrarFertilizer();
+				iacs.getPlugin().reloadFertilizer();
 				iacs.MiniMessage("<rainbow>[IACROP] World disabled!</rainbow>", sender, 0);
 			}
 			else if(args[0].toUpperCase().equalsIgnoreCase("grow")){

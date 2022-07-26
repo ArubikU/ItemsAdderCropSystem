@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -58,10 +59,9 @@ import io.lumine.mythic.utils.adventure.title.TitlePart;
 import me.clip.placeholderapi.PlaceholderAPI;
 
 
-public class iacs extends JavaPlugin{
+public class iacs extends ConfigManager{
 
 	PluginDescriptionFile pdffile = getDescription();
-	public String rutaconf;
 	public String version = pdffile.getVersion();
 	public static FileConfiguration config;
 	public static CropTimer timer;
@@ -80,14 +80,6 @@ public class iacs extends JavaPlugin{
 
 	public void setPdffile(PluginDescriptionFile pdffile) {
 		this.pdffile = pdffile;
-	}
-
-	public String getRutaconf() {
-		return rutaconf;
-	}
-
-	public void setRutaconf(String rutaconf) {
-		this.rutaconf = rutaconf;
 	}
 
 	public String getVersion() {
@@ -135,6 +127,8 @@ public class iacs extends JavaPlugin{
 	public void onEnable() {
 		plugin = this;
 		registrarConfig();
+		registrarPlants();
+		registrarFertilizer();
 
 		listenerProtocol.onEnable();
 		
@@ -544,38 +538,12 @@ public class iacs extends JavaPlugin{
 		return plugin;
 	}
 
-	public void registrarConfig() {
-
-		File config = new File(this.getDataFolder(), "config.yml");
-		rutaconf = config.getPath();
-		if (!config.exists()) {this.getConfig().options().copyDefaults(true);saveConfig();
-		}
-		YamlConfiguration s = YamlConfiguration.loadConfiguration(config);
-		FileConfiguration data = (FileConfiguration) s;
-		
-		iacs.config = data;
-
-	}
-
 	public static Boolean mythiclib() {
-
-		File f = new File(iacs.getPlugin().getDataFolder(), "config.yml");
-		if (!f.exists()) {
-			f.getParentFile().mkdirs();
-		}
-		YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
-		FileConfiguration data = (FileConfiguration) s;
-		
-		return s.getBoolean("config.mythic-lib");
+		return iacs.getPlugin().getConfig().getBoolean("config.mythic-lib");
 	}
 	
 	public static Object getCfg(String rute, Object temp) {
-		File f = new File(iacs.getPlugin().getDataFolder(), "config.yml");
-		if (!f.exists()) {
-			f.getParentFile().mkdirs();
-		}
-		YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
-		FileConfiguration data = (FileConfiguration) s;
+		FileConfiguration data = iacs.getPlugin().getConfig();
 		
 		if(data.get(rute) == null) {
 			return temp;
@@ -613,12 +581,22 @@ public class iacs extends JavaPlugin{
 	}
 
 	public static Object getCfgFile(String rute, Object temp,String rote) {
-		File f = new File(iacs.getPlugin().getDataFolder(), rote);
-		if (!f.exists()) {
-			f.getParentFile().mkdirs();
+
+		FileConfiguration data ;
+		if(rote.equalsIgnoreCase("fertilizer.yml")) {
+			data = iacs.getPlugin().getFertilizer();
+		}else if(rote.equalsIgnoreCase("plants.yml")) {
+			data = iacs.getPlugin().getPlants();
+		}else if(rote.equalsIgnoreCase("config.yml")) {
+			data = iacs.getPlugin().getConfig();
+		}else {
+			File f = new File(iacs.getPlugin().getDataFolder(), rote);
+			if (!f.exists()) {
+				f.getParentFile().mkdirs();
+			}
+			YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
+			data = (FileConfiguration) s;
 		}
-		YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
-		FileConfiguration data = (FileConfiguration) s;
 		
 		if(data.get(rute) == null) {
 			return temp;
@@ -644,13 +622,23 @@ public class iacs extends JavaPlugin{
 		return temp;
 	}
 	public static FileConfiguration getConfig(String rote) {
-		File f = new File(iacs.getPlugin().getDataFolder(), rote);
-		if (!f.exists()) {
-			f.getParentFile().mkdirs();
+
+		FileConfiguration data ;
+		if(rote.equalsIgnoreCase("fertilizer.yml")) {
+			data = iacs.getPlugin().getFertilizer();
+		}else if(rote.equalsIgnoreCase("plants.yml")) {
+			data = iacs.getPlugin().getPlants();
+		}else if(rote.equalsIgnoreCase("config.yml")) {
+			data = iacs.getPlugin().getConfig();
+		}else {
+			File f = new File(iacs.getPlugin().getDataFolder(), rote);
+			if (!f.exists()) {
+				f.getParentFile().mkdirs();
+			}
+			YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
+			data = (FileConfiguration) s;
 		}
-		YamlConfiguration s = YamlConfiguration.loadConfiguration(f);
-		FileConfiguration data = (FileConfiguration) s;
 		
-		return s;
+		return data;
 	}
 }

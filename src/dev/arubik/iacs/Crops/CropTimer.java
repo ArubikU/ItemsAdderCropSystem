@@ -21,7 +21,7 @@ public class CropTimer {
 	        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
 	        if(iacs.getCfg("config.block-mode", "true").toString().equalsIgnoreCase("true")) {
 		        forChunks fs =  new forChunks();
-		        BukkitTask ts = fs.runTaskLaterAsynchronously(iacs.getPlugin(), originalTime*20);
+		        BukkitTask ts = fs.runTaskLaterAsynchronously(iacs.getPlugin(), (long) (originalTime*20));
 		        taskID = ts.getTaskId();
 	        }
 	        if(iacs.getCfg("config.furniture-mode", "false").toString().equalsIgnoreCase("true")) {

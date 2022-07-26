@@ -177,7 +177,6 @@ public class Skills implements Listener {
 		}
 
 		if (line.getKey().equalsIgnoreCase("particle:")) {
-
 			e.setCancelled(line.getBoolean("cancel-event", false));
 			Bukkit.getScheduler().runTaskLater(iacs.getPlugin(), new Runnable() {
 				@Override
