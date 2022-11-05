@@ -16,9 +16,9 @@ import org.bukkit.inventory.PlayerInventory;
 import dev.arubik.iacs.iacs;
 import dev.arubik.iacs.Crops.CropInstance;
 import dev.arubik.iacs.managers.CropManager;
+import dev.arubik.iacs.utils.LineConfig;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
-import io.lumine.mythic.utils.config.LineConfig;
 import me.clip.placeholderapi.PlaceholderAPI;
 
 public class SkillEvent extends org.bukkit.event.Event implements Cancellable {

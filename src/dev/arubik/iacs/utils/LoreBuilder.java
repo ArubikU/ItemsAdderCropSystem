@@ -2,11 +2,13 @@ package dev.arubik.iacs.utils;
 
 import com.google.common.collect.Lists;
 import io.lumine.mythic.lib.MythicLib;
-import io.lumine.mythic.lib.api.math.EvaluatedFormula;
 import org.apache.commons.lang.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 /**
  * There are three types of lore placeholders.
@@ -124,7 +126,7 @@ public class LoreBuilder {
      *
      * @param str String to insert at the end
      */
-    public void end(@NotNull String str) {
+    public void end( String str) {
         end.add(str);
     }
 
@@ -167,7 +169,15 @@ public class LoreBuilder {
 
             String result;
             try {
-                result = MythicLib.plugin.getMMOConfig().decimals.format(new EvaluatedFormula(match).evaluate());
+            	ScriptEngineManager manager = new ScriptEngineManager();
+            	ScriptEngine engine = manager.getEngineByName("js");
+            	Object resultEval = new Object();
+				try {
+					resultEval = engine.eval("4*5");
+				} catch (ScriptException e) {
+					e.printStackTrace();
+				}
+                result = MythicLib.plugin.getMMOConfig().decimals.format(Double.valueOf(resultEval.toString()));
             } catch (RuntimeException ignored) {
                 result = "<InvalidFormula>";
             }

@@ -14,11 +14,12 @@ import org.bukkit.inventory.PlayerInventory;
 import dev.arubik.iacs.iacs;
 import dev.arubik.iacs.Crops.CropInstance;
 import dev.arubik.iacs.managers.CropManager;
+import dev.arubik.iacs.utils.LineConfig;
+import dev.arubik.iacs.utils.Particle;
+import dev.arubik.iacs.utils.ParticleBuilder;
+import dev.arubik.iacs.utils.Sound;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomStack;
-import io.lumine.mythic.utils.config.LineConfig;
-import io.lumine.mythic.utils.particles.ParticleBuilder;
-import io.lumine.mythic.utils.sound.Sound;
 import net.seyarada.pandeloot.drops.IDrop;
 import net.seyarada.pandeloot.drops.LootDrop;
 import net.seyarada.pandeloot.drops.containers.ContainerManager;
@@ -181,7 +182,7 @@ public class Skills implements Listener {
 			Bukkit.getScheduler().runTaskLater(iacs.getPlugin(), new Runnable() {
 				@Override
 				public void run() {
-					ParticleBuilder pb = ParticleBuilder.of(io.lumine.mythic.utils.particles.Particle
+					ParticleBuilder pb = ParticleBuilder.of(Particle
 							.valueOf(line.getString("particle", "WATER_SPLASH")));
 					loc.setX(loc.getX() + line.getFloat("offset_x", 0));
 					loc.setY(loc.getY() + line.getFloat("offset_y", 0));
@@ -221,17 +222,9 @@ public class Skills implements Listener {
 				@Override
 				public void run() {
 					try {
-
-						if (iacs.mythiclib()) {
 							Sound.play(loc, line.getString("sound", "ambient.underwater.enter"),
 									line.getFloat("volume", 2), line.getFloat("pitch", 1));
 
-						} else {
-
-							loc.getWorld().playSound(loc, line.getString("sound", "ambient.underwater.enter"),
-									line.getFloat("volume", 2), line.getFloat("pitch", 1));
-
-						}
 					} catch (Exception | Error e) {
 						iacs.log("[IACroper] try with ambient.underwater.enter ");
 					}

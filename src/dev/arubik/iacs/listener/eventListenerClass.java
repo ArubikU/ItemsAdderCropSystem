@@ -11,7 +11,7 @@ import org.bukkit.event.Listener;
 import dev.arubik.iacs.iacs;
 import dev.arubik.iacs.events.ModifyMB;
 import dev.arubik.iacs.skills.SkillEvent;
-import io.lumine.mythic.utils.config.LineConfig;
+import dev.arubik.iacs.utils.LineConfig;
 
 public class eventListenerClass implements Listener{
 

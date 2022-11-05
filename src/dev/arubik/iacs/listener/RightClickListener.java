@@ -22,7 +22,7 @@ import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomFurniture;
 import dev.lone.itemsadder.api.CustomStack;
 import dev.lone.itemsadder.api.Events.CustomBlockInteractEvent;
-import io.lumine.mythic.utils.config.LineConfig;
+import dev.arubik.iacs.utils.LineConfig;
 
 public class RightClickListener implements Listener {
 

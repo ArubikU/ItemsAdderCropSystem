@@ -31,10 +31,10 @@ import com.comphenix.protocol.events.PacketContainer;
 import dev.arubik.iacs.furnitureGet;
 import dev.arubik.iacs.iacs;
 import dev.arubik.iacs.Crops.CropInstance;
+import dev.arubik.iacs.utils.LineConfig;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomFurniture;
 import dev.lone.itemsadder.api.CustomStack;
-import io.lumine.mythic.utils.config.LineConfig;
 
 public class newManagerIacrops {
 	

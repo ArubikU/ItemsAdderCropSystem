@@ -51,11 +51,12 @@ import dev.arubik.iacs.managers.Metrics;
 import dev.arubik.iacs.managers.newManagerIacrops;
 import dev.arubik.iacs.skills.Skills;
 import dev.lone.itemsadder.api.CustomBlock;
-import io.lumine.mythic.utils.adventure.audience.Audience;
-import io.lumine.mythic.utils.adventure.platform.bukkit.BukkitAudiences;
-import io.lumine.mythic.utils.adventure.text.Component;
-import io.lumine.mythic.utils.adventure.text.minimessage.MiniMessage;
-import io.lumine.mythic.utils.adventure.title.TitlePart;
+import io.lumine.mythic.lib.adventure.audience.Audience;
+import io.lumine.mythic.lib.adventure.audience.MessageType;
+import io.lumine.mythic.lib.adventure.platform.bukkit.BukkitAudiences;
+import io.lumine.mythic.lib.adventure.text.Component;
+import io.lumine.mythic.lib.adventure.text.minimessage.MiniMessage;
+import io.lumine.mythic.lib.adventure.title.TitlePart;
 import me.clip.placeholderapi.PlaceholderAPI;
 
 
@@ -126,7 +127,19 @@ public class iacs extends ConfigManager{
 	@Override
 	public void onEnable() {
 		plugin = this;
+
 		registrarConfig();
+        if(iacs.getCfg("config.only-skills", "false").toString().equalsIgnoreCase("TRUE")) {
+    		Bukkit.getPluginManager().registerEvents(new Skills(), this);
+    		Bukkit.getPluginManager().registerEvents(new eventListenerClass(), this);
+
+
+    		iacs.MiniMessage("<rainbow>[Skiller] Encendido</rainbow>", Bukkit.getConsoleSender(), 0);
+    		iacs.MiniMessage("<green>[Skiller] Version:"+plugin.getDescription().getVersion(), Bukkit.getConsoleSender(), 0);
+    		iacs.MiniMessage("<green>[Skiller] Comprador:"+plugin.getDescription().getDescription(), Bukkit.getConsoleSender(), 0);
+    		return;
+        }
+        
 		registrarPlants();
 		registrarFertilizer();
 
@@ -185,6 +198,8 @@ public class iacs extends ConfigManager{
         	new newManagerIacrops();
         }
 		
+
+		
 		Bukkit.getPluginManager().registerEvents(new onBreakListener(), this);
 		Bukkit.getPluginManager().registerEvents(new rightClickWater(), this);
 		Bukkit.getPluginManager().registerEvents(new Skills(), this);
@@ -216,18 +231,21 @@ public class iacs extends ConfigManager{
 					dev.lone.itemsadder.api.CustomBlock$Advanced.placeInCustomRegion(cb, loc);
 					Bukkit.getOnlinePlayers().forEach(player -> {
 						Location newl = player.getLocation().clone();
-						newl.setY(loc.getY());
-						if(newl.distance(loc) < distance) {
-							player.sendBlockChange(loc, cb.getBaseBlockData());
-						}
-					});
+						if(newl.getWorld()==loc.getWorld()) {
+							newl.setY(loc.getY());
+							if(newl.distance(loc) < distance) {
+								player.sendBlockChange(loc, cb.getBaseBlockData());
+							}
+						}});
 				});
 				Bukkit.getScheduler().runTaskLater(iacs.getPlugin(), () ->{
 					Bukkit.getOnlinePlayers().forEach(player -> {
 						Location newl = player.getLocation().clone();
-						newl.setY(loc.getY());
-						if(newl.distance(loc) < distance) {
-							player.sendBlockChange(loc, cb.getBaseBlockData());
+						if(newl.getWorld()==loc.getWorld()) {
+							newl.setY(loc.getY());
+							if(newl.distance(loc) < distance) {
+								player.sendBlockChange(loc, cb.getBaseBlockData());
+							}
 						}
 					});
 				}, 2);
@@ -239,20 +257,22 @@ public class iacs extends ConfigManager{
 					dev.lone.itemsadder.api.CustomBlock$Advanced.placeInCustomRegion(cb, loc);
 					Bukkit.getOnlinePlayers().forEach(player -> {
 						Location newl = player.getLocation().clone();
-						newl.setY(loc.getY());
-						if(newl.distance(loc) < distance) {
-							player.sendBlockChange(loc, cb.getBaseBlockData());
-						}
-					});
+						if(newl.getWorld()==loc.getWorld()) {
+							newl.setY(loc.getY());
+							if(newl.distance(loc) < distance) {
+								player.sendBlockChange(loc, cb.getBaseBlockData());
+							}
+						}});
 				});
 				Bukkit.getScheduler().runTaskLater(iacs.getPlugin(), () ->{
 					Bukkit.getOnlinePlayers().forEach(player -> {
 						Location newl = player.getLocation().clone();
-						newl.setY(loc.getY());
-						if(newl.distance(loc) < distance) {
-							player.sendBlockChange(loc, cb.getBaseBlockData());
-						}
-					});
+						if(newl.getWorld()==loc.getWorld()) {
+							newl.setY(loc.getY());
+							if(newl.distance(loc) < distance) {
+								player.sendBlockChange(loc, cb.getBaseBlockData());
+							}
+						}});
 				}, 2);
 			}
 
@@ -408,7 +428,7 @@ public class iacs extends ConfigManager{
 		BukkitAudiences au = BukkitAudiences.create(iacs.getPlugin());
 		Audience p= Audience.empty();
 		p = au.player(pl);
-		MiniMessage mm = MiniMessage.get();
+		MiniMessage mm = MiniMessage.miniMessage();
 		Component parsed = mm.deserialize(s.toString());
 		iacs.sendMessage(p, parsed, 0);
 	}
@@ -418,7 +438,7 @@ public class iacs extends ConfigManager{
 		BukkitAudiences au = BukkitAudiences.create(iacs.getPlugin());
 		Audience p= Audience.empty();
 		p = au.sender(pl);
-		MiniMessage mm = MiniMessage.get();
+		MiniMessage mm = MiniMessage.miniMessage();
 		Component parsed = mm.deserialize(s.toString());
 		iacs.sendMessage(p, parsed, 0);
 	}
@@ -427,7 +447,7 @@ public class iacs extends ConfigManager{
 		BukkitAudiences au = BukkitAudiences.create(iacs.getPlugin());
 		Audience p= Audience.empty();
 		p = au.player(player);
-		MiniMessage mm = MiniMessage.get();
+		MiniMessage mm = MiniMessage.miniMessage();
 		Component parsed = mm.deserialize(s.toString());
 		iacs.sendMessage(p, parsed, id);
 	}
@@ -438,14 +458,14 @@ public class iacs extends ConfigManager{
 			BukkitAudiences au = BukkitAudiences.create(iacs.getPlugin());
 			Audience p= Audience.empty();
 			p = au.sender(Bukkit.getConsoleSender());
-			MiniMessage mm = MiniMessage.get();
+			MiniMessage mm = MiniMessage.miniMessage();
 			Component parsed = mm.deserialize(s.toString());
 			iacs.sendMessage(p, parsed, id);
 		}else {
 		BukkitAudiences au = BukkitAudiences.create(iacs.getPlugin());
 		Audience p= Audience.empty();
 		p = au.sender(player);
-		MiniMessage mm = MiniMessage.get();
+		MiniMessage mm = MiniMessage.miniMessage();
 		Component parsed = mm.deserialize(s.toString());
 		iacs.sendMessage(p, parsed, id);
 		}
@@ -455,7 +475,7 @@ public class iacs extends ConfigManager{
 		BukkitAudiences au = BukkitAudiences.create(iacs.getPlugin());
 		Audience p= Audience.empty();
 		p = au.sender(player);
-		MiniMessage mm = MiniMessage.get();
+		MiniMessage mm = MiniMessage.miniMessage();
 		Component parsed = mm.deserialize(s.toString());
 		iacs.sendMessage(p, parsed, id);
 	}
@@ -476,7 +496,7 @@ public class iacs extends ConfigManager{
 				p.sendTitlePart(TitlePart.SUBTITLE, parsed);
 			}
 		else if(id == 5){
-				p.sendMessage(parsed, io.lumine.mythic.utils.adventure.audience.MessageType.SYSTEM);
+				p.sendMessage(parsed, MessageType.SYSTEM);
 			}
 		else {
 			p.sendMessage(parsed);
@@ -486,7 +506,10 @@ public class iacs extends ConfigManager{
 	
 	@Override
 	public void onDisable() {
-		
+
+        if(iacs.getCfg("config.only-skills", "false").toString().equalsIgnoreCase("TRUE")) {
+        	return;
+        }
 		if(timer != null) {
 			
 		CropTimer.stopTimer(timer.getTaskID());

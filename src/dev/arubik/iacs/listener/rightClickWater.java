@@ -15,7 +15,7 @@ import org.bukkit.inventory.PlayerInventory;
 import dev.arubik.iacs.iacs;
 import dev.arubik.iacs.skills.SkillEvent;
 import dev.lone.itemsadder.api.CustomStack;
-import io.lumine.mythic.utils.config.LineConfig;
+import dev.arubik.iacs.utils.LineConfig;
 
 public class rightClickWater implements Listener{
 	public rightClickWater() {
