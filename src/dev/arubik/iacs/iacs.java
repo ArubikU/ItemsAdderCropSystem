@@ -42,6 +42,7 @@ import dev.arubik.iacs.events.ModifyMB;
 import dev.arubik.iacs.events.forChunks;
 import dev.arubik.iacs.events.newForChunks;
 import dev.arubik.iacs.events.ModifyMB.Operation;
+import dev.arubik.iacs.listener.IAListeners;
 import dev.arubik.iacs.listener.RightClickListener;
 import dev.arubik.iacs.listener.eventListenerClass;
 import dev.arubik.iacs.listener.onBreakListener;
@@ -129,9 +130,17 @@ public class iacs extends ConfigManager{
 		plugin = this;
 
 		registrarConfig();
-        if(iacs.getCfg("config.only-skills", "false").toString().equalsIgnoreCase("TRUE")) {
+		
+		
+		
+        if(iacs.getCfg("config.only-skills", "false").toString().equalsIgnoreCase("TRUE")
+	|| Bukkit.getPluginManager().getPlugin("ItemsAdder")==null) {
     		Bukkit.getPluginManager().registerEvents(new Skills(), this);
     		Bukkit.getPluginManager().registerEvents(new eventListenerClass(), this);
+    		if(Bukkit.getPluginManager().getPlugin("ItemsAdder")!=null) {
+    			Bukkit.getPluginManager().registerEvents(new IAListeners(), this);
+    		}
+    		
 
 
     		iacs.MiniMessage("<rainbow>[Skiller] Encendido</rainbow>", Bukkit.getConsoleSender(), 0);
@@ -204,6 +213,7 @@ public class iacs extends ConfigManager{
 		Bukkit.getPluginManager().registerEvents(new rightClickWater(), this);
 		Bukkit.getPluginManager().registerEvents(new Skills(), this);
 		Bukkit.getPluginManager().registerEvents(new eventListenerClass(), this);
+		Bukkit.getPluginManager().registerEvents(new IAListeners(), this);
 		startTimer();
 	}
 	
@@ -507,7 +517,8 @@ public class iacs extends ConfigManager{
 	@Override
 	public void onDisable() {
 
-        if(iacs.getCfg("config.only-skills", "false").toString().equalsIgnoreCase("TRUE")) {
+        if(iacs.getCfg("config.only-skills", "false").toString().equalsIgnoreCase("TRUE")
+	|| Bukkit.getPluginManager().getPlugin("ItemsAdder")==null) {
         	return;
         }
 		if(timer != null) {

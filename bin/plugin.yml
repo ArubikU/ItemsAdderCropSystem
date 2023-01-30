@@ -3,7 +3,9 @@ main: dev.arubik.iacs.iacs
 version: "%%__RESOURCE_VERSION__%%"
 author: SodaDevs
 api-version: 1.13
-depend: [ItemsAdder, MythicLib]
+depend: [MythicLib]
+softdepend:
+  - "ItemsAdder"
 soft-depend: [PlaceholderAPI]
 description: "%%__USERNAME__%%"
 commands:
